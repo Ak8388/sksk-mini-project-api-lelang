@@ -6,6 +6,8 @@ import jawa.sinaukoding.sk.model.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.mockito.ArgumentMatchers.nullable;
+
 import java.util.Optional;
 
 public class AuthenticationTest {
