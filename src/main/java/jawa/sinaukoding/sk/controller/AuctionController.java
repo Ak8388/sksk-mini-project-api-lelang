@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuctionController {
 
     // seller bisa createAuction
-    @PostMapping("")
+    @PostMapping("create-auction")
     public Response<Object> createAuction() {
         return Response.badRequest();
     }
 
     // admin, bisa approve
-    @PostMapping("")
+    @PostMapping("approve-auction")
     public Response<Object> approveAuction() {
         return Response.badRequest();
     }
 
     // admin, bisa reject
-    @PostMapping("")
+    @PostMapping("reject-auction")
     public Response<Object> rejectAuction() {
         return Response.badRequest();
     }
