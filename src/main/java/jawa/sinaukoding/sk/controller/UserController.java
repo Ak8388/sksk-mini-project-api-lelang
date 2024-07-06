@@ -57,10 +57,10 @@ public class UserController {
         return userService.updateProfile(auth, req, auth.id());
     }
 
-    // @PostMapping("/delete-user")
-    // public Response<Object> deleteUser(@RequestParam (value = "id") Long id) {
-    //     Authentication authentication = SecurityContextHolder.getAuthentication();
-    //     return userService.deletedResponse(authentication, authentication.id(), id);
-    // }
+    @PostMapping("/delete-user")
+    public Response<Object> deleteUser(@RequestParam (value = "id") Long id) {
+        Authentication authentication = SecurityContextHolder.getAuthentication();
+        return userService.deletedResponse(authentication, authentication.id(), id);
+    }
 
 }
