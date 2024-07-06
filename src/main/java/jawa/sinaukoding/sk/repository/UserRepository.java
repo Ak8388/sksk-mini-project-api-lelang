@@ -15,9 +15,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class UserRepository {
@@ -31,7 +33,7 @@ public class UserRepository {
     }
 
     public List<User> listUsers(int page, int size) {
-        final String sql = "SELECT * FROM %s".formatted(User.TABLE_NAME);
+        final String sql = "SELECT * FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
         final List<User> users = jdbcTemplate.query(sql, new RowMapper<User>() {
             @Override
             public User mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -84,16 +86,26 @@ public class UserRepository {
     }
 
     public long updatePassword(Long userId, String newPassword) {
-        if (jdbcTemplate.update(con -> {
-            final PreparedStatement ps = con.prepareStatement("UPDATE " + User.TABLE_NAME + " SET password=? WHERE id=?");
-            ps.setString(1, newPassword);
-            ps.setLong(2, userId);
-            return ps;
-        }) > 0) {
-            return userId;
-        } else {
-            return 0L;
+        try {
+            if (jdbcTemplate.update(con -> {
+                final PreparedStatement ps = con.prepareStatement("UPDATE " + User.TABLE_NAME + " SET password=?, updated_by=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
+                ps.setString(1, newPassword);
+                ps.setLong(2, userId);
+                ps.setLong(3, userId);
+                return ps;
+            }) > 0) {
+                return userId;
+            } else {
+                return 0L;
+            }
+            
+        } catch (Exception e) {
+           System.err.println("Error reset password for user id" + userId + ": " + e.getMessage());
+           return 0L;
         }
+        
+
+        
     }
 
     public Optional<User> findById(final Long id) {
@@ -146,5 +158,71 @@ public class UserRepository {
             final OffsetDateTime deletedAt = rs.getTimestamp("deleted_at") == null ? null : rs.getTimestamp("deleted_at").toInstant().atOffset(ZoneOffset.UTC);
             return new User(id, name, email, password, role, createdBy, updatedBy, deletedBy, createdAt, updatedAt, deletedAt);
         }));
+    }
+
+    public long updateProfile(User user){
+        String idStr = Long.toString(user.id());
+        ArrayList<String> listValue = new ArrayList<>();
+
+        if(user.id() == 0){
+            return 0L; 
+        }
+
+        StringBuilder qry = new StringBuilder();
+        qry.append("UPDATE "+ User.TABLE_NAME +" SET ");
+        
+        if(user.name() != ""){
+            qry.append("name=?");
+            listValue.add(user.name());
+        }
+
+        if(user.email() != ""){
+            if(listValue.size() >= 1){
+                qry.append(", email=?");
+            }else{
+                qry.append("email=?");
+            }
+            
+            listValue.add(user.email());
+        }
+
+        if(listValue.size() == 0){
+            return 0L;
+        }
+
+        qry.append(",updated_by=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
+        listValue.add(idStr);
+        listValue.add(idStr);
+        
+       if(jdbcTemplate.update(con -> {
+            final PreparedStatement ps = con.prepareStatement(qry.toString());
+
+            for(int x=0; x<listValue.size(); x++){
+                ps.setString(x+1,listValue.get(x));
+            }
+            
+            return ps;
+        }) > 0){
+            return user.id();
+        }else{
+           return 0L; 
+        }
+    }
+
+    public Long deleteUser(final Long id, Long idUser) {
+        if (id == null) {
+            return 0L;
+        }
+        if (jdbcTemplate.update(con -> {
+            final PreparedStatement ps = con.prepareStatement("UPDATE " + User.TABLE_NAME + " SET deleted_by=?, deleted_at=CURRENT_TIMESTAMP WHERE id=?");
+            ps.setLong(1, id);
+            ps.setLong(2, idUser);
+            return ps;
+        }) > 0) {
+            return id;
+        } else {
+            return 0L;
+
+        }
     }
 }

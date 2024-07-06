@@ -12,7 +12,7 @@ public record User(Long id, //
                    Role role, //
                    Long createdBy, //
                    Long updatedBy, //
-                   Long deletedBy, //
+                   Long deletedBy, // 
                    OffsetDateTime createdAt, //
                    OffsetDateTime updatedAt, //
                    OffsetDateTime deletedAt) { //

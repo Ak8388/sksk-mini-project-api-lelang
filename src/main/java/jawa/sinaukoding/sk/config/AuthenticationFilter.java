@@ -28,7 +28,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             try {
                 final String token = authorization.substring(7);
-                JwtUtils.Jwt jwt = JwtUtils.hs256Parse(token, jwtKey);
+                JwtUtils.Jwt jwt = JwtUtils.hs256Parse(token, jwtKey); 
                 ObjectMapper mapper = new ObjectMapper();
                 Map map = mapper.readValue(jwt.payload(), Map.class);
                 Number id = (Number) map.get("sub");
