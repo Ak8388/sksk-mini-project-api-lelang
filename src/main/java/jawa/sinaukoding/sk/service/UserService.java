@@ -40,7 +40,6 @@ public final class UserService extends AbstractService {
         final String skJwtKey = env.getProperty("sk.jwt.key");
         this.jwtKey = HexUtils.hexToBytes(skJwtKey);
         // this.jwtUtils = jwtUtils;
-
     }
 
     public Response<Object> listUsers(final Authentication authentication, final int page, final int size) {

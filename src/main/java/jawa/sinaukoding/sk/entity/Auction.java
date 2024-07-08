@@ -1,5 +1,6 @@
 package jawa.sinaukoding.sk.entity;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,13 +26,30 @@ public record Auction(Long id, //
                       OffsetDateTime deletedAt //
 ) {
 
-    public static final String TABLE_NAME = "auction";
+    public static final String TABLE_NAME = "sk_auction";
 
     public PreparedStatement insert(final Connection connection) {
         try {
             // TODO: INSERT
-            return null;
+            final String sql = "INSERT INTO " + TABLE_NAME + " (code, name, description, offer, started_at, ended_at, highest_bid, highest_bidder_id, hignest_bidder_name, status, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+            final PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            BigDecimal valueOffer = new BigDecimal(offer);
+            BigDecimal valueHighest = new BigDecimal(highestBid);
+            ps.setString(1, code());
+            ps.setString(2, name());
+            ps.setString(3, description());
+            ps.setBigDecimal(4, valueOffer);
+            ps.setObject(5, startedAt);
+            ps.setObject(6, endedAt);
+            ps.setBigDecimal(7, valueHighest);
+            ps.setLong(8, highestBidderId);
+            ps.setString(9, highestBidderName);
+            ps.setString(10, status().name());
+            ps.setLong(11, createdBy);
+
+            return ps;
         } catch (Exception e) {
+            
             return null;
         }
     }
