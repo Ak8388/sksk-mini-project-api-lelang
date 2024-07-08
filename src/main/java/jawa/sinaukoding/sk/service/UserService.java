@@ -197,6 +197,8 @@ public final class UserService extends AbstractService {
                 return Response.badRequest();
             }
 
+            
+
             if(req.name() != ""){
                 if(req.name() == userValidate.get().name()){
                     return Response.create("40", "00", "gagal update user karena nama yang baru sama dengan nama lama", null);

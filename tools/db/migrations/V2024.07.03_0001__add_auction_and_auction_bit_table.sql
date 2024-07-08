@@ -1,4 +1,4 @@
-create TABLE IF NOT EXISTS sk_auction
+   create TABLE IF NOT EXISTS sk_auction
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     code VARCHAR(8) NOT NULL,
