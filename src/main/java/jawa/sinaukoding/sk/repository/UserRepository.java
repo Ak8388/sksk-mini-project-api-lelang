@@ -120,6 +120,7 @@ public class UserRepository {
             if (rs.getLong("id") <= 0) {
                 return null;
             }
+            
             final String name = rs.getString("name");
             final String email = rs.getString("email");
             final String password = rs.getString("password");

@@ -25,11 +25,6 @@ public class AuctionController {
         this.auctionService = auctionService;
     }
 
-    private final AuctionService auctionService;
-
-    public AuctionController(AuctionService auctionService) {
-        this.auctionService = auctionService;
-    }
 
     // seller bisa createAuction
 
@@ -46,7 +41,7 @@ public class AuctionController {
     }
 
     // admin, bisa reject
-    @PostMapping("/reject")
+    @PostMapping("reject")
     public Response<Object> rejectAuction( @RequestParam (value = "id") Long id) {
         Authentication authentication = SecurityContextHolder.getAuthentication();
         return auctionService.rejectAuction(authentication,id);
