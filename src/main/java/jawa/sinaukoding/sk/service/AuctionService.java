@@ -216,4 +216,5 @@ public class AuctionService extends AbstractService {
         return str != null && !str.trim().isEmpty();
       }
 
+
 }
