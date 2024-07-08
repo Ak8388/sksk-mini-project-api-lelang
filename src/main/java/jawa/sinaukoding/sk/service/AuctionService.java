@@ -154,4 +154,66 @@ public class AuctionService extends AbstractService {
         });
 
     }
+
+    public Response<Object> ApproveAuction(final Authentication authentication, Long id) {
+        return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
+            Optional<Auction> auctionOptional = auctionRepo.findById(id); 
+            Auction auction = auctionOptional.get();
+            if (auction.status().equals(auction.status().WAITING_FOR_APPROVAL)){
+                if (ifPresent(auction)) {
+                    Auction updatedAuction = new Auction(
+                        auction.id(),
+                        auction.code(),
+                        auction.name(),
+                        auction.description(),
+                        auction.offer(),
+                        auction.highestBid(),
+                        auction.highestBidderId(),
+                        auction.highestBidderName(),
+                        Auction.Status.APPROVED,
+                        auction.startedAt(),
+                        auction.endedAt(),
+                        auction.createdBy(),
+                        auction.updatedBy(),
+                        auction.deletedBy(),
+                        auction.createdAt(),
+                        auction.updatedAt(),
+                        auction.deletedAt()
+                    );
+                    Long x = auctionRepo.ApproveAuction(id);
+                    return Response.create("01", "01", "Auction Approved successfully", x);
+              } else {
+                return Response.create("01", "02", "cannot Approved", null);
+            }
+        }
+        return Response.badRequest();
+         
+        });
+
+    }
+
+    private boolean ifPresent(Auction auction) {
+        return auction.id() != null ||
+               isNotNullOrEmpty(auction.code()) ||
+               isNotNullOrEmpty(auction.name()) ||
+               isNotNullOrEmpty(auction.description()) ||
+               auction.offer() != null ||
+               auction.highestBid() != null ||
+               auction.highestBidderId() != null ||
+               isNotNullOrEmpty(auction.highestBidderName()) ||
+               auction.status() != null ||
+               auction.startedAt() != null ||
+               auction.endedAt() != null ||
+               auction.createdBy() != null ||
+               auction.updatedBy() != null ||
+               auction.deletedBy() != null ||
+               auction.createdAt() != null ||
+               auction.updatedAt() != null ||
+               auction.deletedAt() != null;
+    }
+
+    private boolean isNotNullOrEmpty(String str) {
+        return str != null && !str.trim().isEmpty();
+      }
+
 }

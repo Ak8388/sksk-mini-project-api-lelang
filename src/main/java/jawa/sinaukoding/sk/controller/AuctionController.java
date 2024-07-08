@@ -35,9 +35,10 @@ public class AuctionController {
     }
  
     // admin, bisa approve
-    @PostMapping("")
-    public Response<Object> approveAuction() {
-        return Response.badRequest();
+    @PostMapping("approve-auction")
+    public Response<Object> approveAuction(@RequestParam (value = "id") Long id) {
+        Authentication authentication = SecurityContextHolder.getAuthentication();
+        return auctionService.ApproveAuction(authentication, id);
     }
 
     // admin, bisa reject
