@@ -1,6 +1,7 @@
 package jawa.sinaukoding.sk.repository;
 
 import jawa.sinaukoding.sk.entity.User;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -119,6 +120,7 @@ public class UserRepository {
             if (rs.getLong("id") <= 0) {
                 return null;
             }
+            
             final String name = rs.getString("name");
             final String email = rs.getString("email");
             final String password = rs.getString("password");

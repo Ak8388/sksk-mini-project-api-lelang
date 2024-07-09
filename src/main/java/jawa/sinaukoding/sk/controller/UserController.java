@@ -52,7 +52,6 @@ public class UserController {
 
     @PostMapping("/update-profile")
     public Response<Object> updateProfile(@RequestBody UpdateProfileReq req) {
-        // TODO: update profile
         Authentication auth = SecurityContextHolder.getAuthentication();
         return userService.updateProfile(auth, req, auth.id());
     }
