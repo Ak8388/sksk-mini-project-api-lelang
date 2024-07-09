@@ -14,6 +14,7 @@ import jawa.sinaukoding.sk.repository.AuctionRepo;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import jawa.sinaukoding.sk.entity.Auction;
@@ -120,7 +121,7 @@ public class AuctionService extends AbstractService {
                 authentication.id(), 
                 null, 
                 null, 
-                null, 
+                OffsetDateTime.now(ZoneOffset.UTC), 
                 null, 
                 null);
 
