@@ -224,6 +224,7 @@ class UserServiceTest {
         Response<Object> response = userService.deletedResponse(authentication, Delete, 2L);
         Assertions.assertEquals("1001", response.code());
         Assertions.assertEquals("Sukses Menghapus Data", response.message());
+        Assertions.assertEquals(true, response.data());
     }
 
     @Test
