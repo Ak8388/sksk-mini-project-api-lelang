@@ -47,5 +47,12 @@ public class AuctionController {
         Authentication authentication = SecurityContextHolder.getAuthentication();
         return auctionService.rejectAuction(authentication,id);
     }
+
+    // buyyer, bisa bid
+    @PostMapping("bid-lelang")
+    public Response<Object> bidLelang(@RequestParam(value = "id") Long id){
+        Authentication auth = SecurityContextHolder.getAuthentication();
+        return null;
+    }
 }
 

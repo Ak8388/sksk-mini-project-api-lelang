@@ -72,7 +72,9 @@ public final class UserService extends AbstractService {
                     null, //
                     null //
             );
+            
             final Long saved = userRepository.saveSeller(user);
+
             if (0L == saved) {
                 return Response.create("05", "01", "Gagal mendaftarkan seller", null);
             }
@@ -122,7 +124,7 @@ public final class UserService extends AbstractService {
             return Response.create("08", "02", "Email atau password salah", null);
         }
 
-        final Authentication authentication = new Authentication(user.id(), user.role(), true);
+        final Authentication authentication = new Authentication(user.id(), user.role(),true);
         final long iat = System.currentTimeMillis();
         final long exp = 1000 * 60 * 60 * 24; // 24 hour
         final JwtUtils.Header header = new JwtUtils.Header() //
@@ -131,6 +133,7 @@ public final class UserService extends AbstractService {
         final JwtUtils.Payload payload = new JwtUtils.Payload() //
                 .add("sub", user.id()) //
                 .add("role", user.role().name()) //
+                .add("name", user.name())
                 .add("iat", iat) //
                 .add("exp", exp); //
 
@@ -196,8 +199,6 @@ public final class UserService extends AbstractService {
                 return Response.badRequest();
             }
 
-            
-
             if(req.name() != ""){
                 if(req.name() == userValidate.get().name()){
                     return Response.create("40", "00", "gagal update user karena nama yang baru sama dengan nama lama", null);
@@ -241,12 +242,15 @@ public final class UserService extends AbstractService {
         if (userOpt.isEmpty()) {
             return Response.create("08", "01", "Email atau password salah", null);
         }
+
         if (userOpt.get().deletedAt() != null) {
-            return Response.badRequest();
+            return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", null);
         }
+
         if (id == 0L) {
             return Response.badRequest();
         } 
+
         Long delete = userRepository.deleteUser(id, idUser);
         if (delete == 0L) {
             return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
