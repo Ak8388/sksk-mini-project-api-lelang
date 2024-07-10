@@ -37,7 +37,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 Number exp = (Number) map.get("exp");
                 long expiration = iat.longValue() + exp.longValue();
                 if (System.currentTimeMillis() < expiration) {
-                    final Authentication authentication = new Authentication(id.longValue(), role, true);
+                    final Authentication authentication = new Authentication(id.longValue(), role,true);
                     SecurityContextHolder.setAuthentication(authentication);
                 }
             } catch (Exception e) {

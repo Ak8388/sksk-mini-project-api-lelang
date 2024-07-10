@@ -3,6 +3,7 @@ package jawa.sinaukoding.sk.service;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.Authentication;
 import jawa.sinaukoding.sk.entity.Auction;
+import jawa.sinaukoding.sk.entity.AuctionBid;
 import jawa.sinaukoding.sk.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -10,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import jawa.sinaukoding.sk.model.request.SellerCreateAuctionReq;
+import jawa.sinaukoding.sk.model.request.UpdateHightBidReq;
 import jawa.sinaukoding.sk.repository.AuctionRepo;
+import jawa.sinaukoding.sk.repository.UserRepository;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
@@ -26,8 +29,12 @@ public class AuctionService extends AbstractService {
     private final AuctionRepo  auctionRepo;
 
     @Autowired
-    public AuctionService(final Environment env, final AuctionRepo auctionRepo) {
+    private final UserRepository userRepository;
+
+    @Autowired
+    public AuctionService(final Environment env, final AuctionRepo auctionRepo,UserRepository userRepository) {
         this.auctionRepo = auctionRepo;
+        this.userRepository = userRepository;
     }
 
     public Response<Object> rejectAuction(final Authentication authentication, Long id) {
@@ -91,6 +98,54 @@ public class AuctionService extends AbstractService {
         return str == null || str.trim().isEmpty();
       }
 
+    public Response<Object> updateHigestBidAndInsertBidTable(final Authentication authentication,final UpdateHightBidReq updateHightBidReq){
+        return precondition(authentication, User.Role.BUYER).orElseGet(()->{
+            Optional<Auction> auction = auctionRepo.findById(updateHightBidReq.auctionID());
+
+            if(auction.isEmpty()){
+                return Response.badRequest();
+            }
+
+            Auction aucGet = auction.get();
+            
+            if(!aucGet.status().equals(Auction.Status.APPROVED)){
+                return Response.create("01", "03", "tidak bisa bid kepada barang yang belum atau tidak di approve", null);
+            }
+
+            if(!(OffsetDateTime.now().toLocalDate().isAfter(aucGet.startedAt().toLocalDate()) && OffsetDateTime.now().toLocalDate().isBefore(aucGet.endedAt().toLocalDate()))){
+                return Response.badRequest();
+            }
+
+            if(updateHightBidReq.highestBid().compareTo(aucGet.highestBid()) <= 0 ){
+                return Response.badRequest();
+            }
+
+            Optional<User> user = userRepository.findById(authentication.id());
+
+            if(user.isEmpty()){
+                return Response.badRequest();
+            }
+
+            
+            User useGet = user.get();
+            
+            if(useGet.deletedAt() != null){
+                return Response.badRequest();
+            }
+
+            Auction auction2 = new Auction(null, null, null, null, null, updateHightBidReq.highestBid(), useGet.id(), useGet.name(), null, null, null, null, null, null, null, null, null);
+
+            AuctionBid auctionBid = new AuctionBid(null, aucGet.id(), updateHightBidReq.highestBid(), useGet.id(), OffsetDateTime.now(ZoneOffset.UTC));
+
+            Long auctionRepository = auctionRepo.updateHigestBidAndInsertBidTable(auction2, auctionBid);
+
+            if(auctionRepository == 0L){
+                return Response.create("03", "02", "gagal update auction", null);
+            }
+
+            return Response.create("01", "07", "sukses bid lelang", updateHightBidReq);
+        });
+    }
 
     public Response<Object> auctionCreate(Authentication authentication, SellerCreateAuctionReq req){
         return precondition(authentication, User.Role.SELLER).orElseGet(()->{
@@ -145,11 +200,11 @@ public class AuctionService extends AbstractService {
                 return Response.create("40","00","masukan deskripsi lelang dengan benar",null);
             }
 
-           Long auctionRepository = auctionRepo.saveAuction(auction);
+            Long auctionRepository = auctionRepo.saveAuction(auction);
 
-           if(auctionRepository == 0L){
+            if(auctionRepository == 0L){
                 return Response.create("40", "00", "gagal save auction", null);
-           }
+            }
 
            return Response.create("20", "01", "sukses membuat pengajuan lelang", auctionRepository);
         });
