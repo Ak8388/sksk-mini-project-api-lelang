@@ -1,4 +1,8 @@
 package jawa.sinaukoding.sk.service;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -49,6 +53,8 @@ public class AuctionTest {
 
     @Autowired
     private AuctionService auctionService;
+
+    @Autowired Authentication authentication;
 
     @BeforeEach
     void findAdmin() {
@@ -140,5 +146,41 @@ public class AuctionTest {
         Assertions.assertEquals("sukses membuat pengajuan lelang",response.message());
         Assertions.assertEquals(2L,response.data());
     }
+
+     @Test 
+    void  AuctionRejectedSucces(){
+        Long auctionId = 1L;
+        User user = Mockito.mock(User.class);
+        Auction auction = Mockito.mock(Auction.class);
+
+        Mockito.when(user.id()).thenReturn(1L);
+        Mockito.when(user.role()).thenReturn(User.Role.SELLER);
+        Mockito.when(authentication.id()).thenReturn(1L);
+        Mockito.when(authentication.role()).thenReturn(User.Role.SELLER);
+        Mockito.when(auctionRepo.findById(auctionId)).thenReturn(Optional.of(auction));
+        Mockito.when(auction.id()).thenReturn(1L);
+
+        Response <Object> response = auctionService.rejectAuction(authentication, auctionId);
+        Assertions.assertNotNull(response,"not null");
+        Assertions.assertEquals("0700", response.code());
+        Assertions.assertEquals("Auction rejected successfully", response.message());
+
+        verify(auctionRepo).findById(auctionId);
+        verify(auctionRepo).RejectedAuction(auctionId);
+
+    }
+
+    @Test
+    public void auctionRejectedInvalidAuctionId() {
+        Long auctionId = 2L;
+        Mockito.when(auctionRepo.findById(auctionId)).thenReturn(Optional.empty());
+
+        Response<Object> response = auctionService.rejectAuction(authentication, auctionId);
+
+        assertNotNull(response, "Response should not be null");
+        assertEquals("0704", response.code());
+        assertEquals("Auction not found", response.message());
+    }
+
     
 }
