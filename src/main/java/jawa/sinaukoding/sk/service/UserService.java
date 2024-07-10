@@ -3,8 +3,11 @@ package jawa.sinaukoding.sk.service;
 
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import javax.management.relation.Role;
 
 import jawa.sinaukoding.sk.entity.User;
 import jawa.sinaukoding.sk.model.Authentication;
@@ -137,53 +140,59 @@ public final class UserService extends AbstractService {
         final String token = JwtUtils.hs256Tokenize(header, payload, jwtKey);
         return Response.create("08", "00", "Sukses", token);
     }
+    
 
-    public Response<Object> resetPassword(final Authentication authentication, final ResetPasswordReq req,  final Long id){
-        return precondition(authentication, User.Role.ADMIN,User.Role.BUYER, User.Role.SELLER ).orElseGet(()->{
+    public Response<Object> resetPassword(final Authentication authentication, final ResetPasswordReq req, final Long id) {
+        return precondition(authentication, User.Role.ADMIN, User.Role.BUYER, User.Role.SELLER).orElseGet(() -> {
 
-            if (req == null || req.newPassword() == null || req.oldPassword() == null){
+            if (req == null || req.newPassword() == null || req.oldPassword() == null) {
                 return Response.badRequest();
             }
+
             Long userId = authentication.id();
-
-            Optional<User> userOpt= userRepository.findById(authentication.id());
-            if (userOpt.isEmpty()){
-                return Response.create("07","01" , "user not found", null);
+          
+            Optional<User> userOpt = userRepository.findById(authentication.id());
+            if (userOpt.isEmpty()) {
+                return Response.create("07", "01", "user not found", null);
             }
-
+    
             User user = userOpt.get();
-
+    
             if (user.deletedAt() != null || user.deletedBy() != null) {
                 return Response.create("07", "06", "Account has been deleted", null);
             }
 
-            if(!passwordEncoder.matches(req.oldPassword(), user.password())){
-                return Response.create("07","03","Old password is incorect" , null);
-            }
+            if (!passwordEncoder.matches(req.oldPassword(), user.password())) {
+                System.out.println(passwordEncoder.matches(req.oldPassword(), user.password()));
 
-            if(passwordEncoder.matches(req.newPassword(), user.password())){
+                System.out.println("PASSWORDD" + user.password());
+                System.out.println(" OLD PASSWORDD" + req.oldPassword());
+                return Response.create("07", "03", "Old password is incorrect", null);
+            }
+    
+            if (passwordEncoder.matches(req.newPassword(), user.password())) {
                 return Response.create("07", "04", "New password cannot be the same as the old password", null);
             }
-
+    
             final String encode = passwordEncoder.encode(req.newPassword());
-
             final long saved = userRepository.updatePassword(userId, encode);
             if (0L == saved) {
-                return Response.create("07", "02", "Gagal mereset password", null);
+                System.out.println("Failed to reset password");
+                return Response.create("07", "02", "Failed to reset password", null);
             }
-
-            Optional<User> userCheck = userRepository.findById(userId);
-            if (userCheck.isEmpty() || userCheck.get().deletedAt() != null || userCheck.get().deletedBy() != null) {
-                return Response.create("07", "07", "Account no longer exists", null);
-            }
-            UserDto userDto = new UserDto(user.name(), user.role());
-            return Response.create("07", "00", "Sukses", userDto );
- 
+    
+            // Optional<User> userCheck = userRepository.findById(userId);
+            // if (userCheck.isEmpty() || userCheck.get().deletedAt() != null || userCheck.get().deletedBy() != null) {
+            //     System.out.println("Account no longer exists after password update");
+            //     return Response.create("07", "07", "Account no longer exists", null);
+            // }
+    
+            // UserDto userDto = new UserDto(user.name(), user.role());
+            // System.out.println("Password reset successful");
+            return Response.create("07", "00", "Success", null);
         });
-
-        
     }
-
+    
     public Response<Object> updateProfile(final Authentication auth,final UpdateProfileReq req,long id){
         return precondition(auth, User.Role.ADMIN,User.Role.BUYER,User.Role.SELLER).orElseGet(() -> {
             if(id == 0L){

@@ -60,6 +60,7 @@ public class AuctionService extends AbstractService {
                 return Response.create("01", "02", "cannot rejected", null);
             }
         }
+
         return Response.badRequest();
          
         });
