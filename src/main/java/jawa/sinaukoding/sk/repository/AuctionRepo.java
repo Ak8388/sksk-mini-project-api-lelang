@@ -69,6 +69,26 @@ public class AuctionRepo {
 
     }
 
+    public Long ApproveAuction(Long Id){
+        try {
+            if(jdbcTemplate.update(con -> {
+                final PreparedStatement ps = con.prepareStatement("UPDATE " + Auction.TABLE_NAME + " SET status = ?, updated_at=? WHERE id=?");
+                ps.setString(1, Auction.Status.APPROVED.toString());
+                ps.setObject(2,OffsetDateTime.now(ZoneOffset.UTC));
+                ps.setLong(3,Id);
+                return ps;
+            }) > 0){
+                return Id;
+            }else {
+                return 0L;
+            }
+        } catch (Exception e) {
+        System.err.println("error to updating status" + Id + ":" + e.getMessage());
+        return 0L;
+        }
+
+    }
+
     public Optional<Auction> findById(Long id){
         if (id == null || id < 0) {
             return Optional.empty();

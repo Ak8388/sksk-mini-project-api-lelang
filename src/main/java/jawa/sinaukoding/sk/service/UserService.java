@@ -181,14 +181,6 @@ public final class UserService extends AbstractService {
                 return Response.create("07", "02", "Failed to reset password", null);
             }
     
-            // Optional<User> userCheck = userRepository.findById(userId);
-            // if (userCheck.isEmpty() || userCheck.get().deletedAt() != null || userCheck.get().deletedBy() != null) {
-            //     System.out.println("Account no longer exists after password update");
-            //     return Response.create("07", "07", "Account no longer exists", null);
-            // }
-    
-            // UserDto userDto = new UserDto(user.name(), user.role());
-            // System.out.println("Password reset successful");
             return Response.create("07", "00", "Success", null);
         });
     }

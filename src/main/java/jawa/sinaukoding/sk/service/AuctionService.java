@@ -14,6 +14,7 @@ import jawa.sinaukoding.sk.repository.AuctionRepo;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 import jawa.sinaukoding.sk.entity.Auction;
@@ -31,7 +32,10 @@ public class AuctionService extends AbstractService {
 
     public Response<Object> rejectAuction(final Authentication authentication, Long id) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
-            Optional<Auction> auctionOptional = auctionRepo.findById(id); 
+            Optional<Auction> auctionOptional = auctionRepo.findById(id);
+            if (auctionOptional.isEmpty()) {
+                return Response.create("07", "04", "Auction not found", null);
+            }
             Auction auction = auctionOptional.get();
             if (auction.status().equals(auction.status().WAITING_FOR_APPROVAL)){
                 if (isInvalid(auction)) {
@@ -54,17 +58,14 @@ public class AuctionService extends AbstractService {
                         auction.updatedAt(),
                         auction.deletedAt()
                     );
-                    Long x = auctionRepo.RejectedAuction(id);
-                    return Response.create("01", "01", "Auction rejected successfully", x);
-              } else {
-                return Response.create("01", "02", "cannot rejected", null);
+                    
+                    return Response.create("07", "00", "Auction rejected",null);
+              } 
+              return Response.create("07", "03", "auction is not invalid", null);
             }
-        }
-
-        return Response.badRequest();
-         
+            return Response.badRequest();
         });
-
+       
     }
 
     private boolean isInvalid(Auction auction) {
@@ -91,7 +92,6 @@ public class AuctionService extends AbstractService {
         return str == null || str.trim().isEmpty();
       }
 
-
     public Response<Object> auctionCreate(Authentication authentication, SellerCreateAuctionReq req){
         return precondition(authentication, User.Role.SELLER).orElseGet(()->{
             if(req.maximumPrice().compareTo(req.minimumPrice()) <= 0){
@@ -105,7 +105,6 @@ public class AuctionService extends AbstractService {
             OffsetDateTime startAt = OffsetDateTime.parse(req.startedAt());
             OffsetDateTime endAt = OffsetDateTime.parse(req.endedAt());
             BigInteger offerPrice = req.maximumPrice().subtract(req.minimumPrice()).divide(BigInteger.TWO);
-
             Auction auction = new Auction(
                 null, 
                 UUID.randomUUID().toString().substring(0,8).toUpperCase(),
@@ -121,7 +120,7 @@ public class AuctionService extends AbstractService {
                 authentication.id(), 
                 null, 
                 null, 
-                null, 
+                OffsetDateTime.now(ZoneOffset.UTC), 
                 null, 
                 null);
 
@@ -155,4 +154,66 @@ public class AuctionService extends AbstractService {
         });
 
     }
+
+    public Response<Object> ApproveAuction(final Authentication authentication, Long id) {
+        return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
+            Optional<Auction> auctionOptional = auctionRepo.findById(id); 
+            Auction auction = auctionOptional.get();
+            if (auction.status().equals(auction.status().WAITING_FOR_APPROVAL)){
+                if (ifPresent(auction)) {
+                    Auction updatedAuction = new Auction(
+                        auction.id(),
+                        auction.code(),
+                        auction.name(),
+                        auction.description(),
+                        auction.offer(),
+                        auction.highestBid(),
+                        auction.highestBidderId(),
+                        auction.highestBidderName(),
+                        Auction.Status.APPROVED,
+                        auction.startedAt(),
+                        auction.endedAt(),
+                        auction.createdBy(),
+                        auction.updatedBy(),
+                        auction.deletedBy(),
+                        auction.createdAt(),
+                        auction.updatedAt(),
+                        auction.deletedAt()
+                    );
+                    Long x = auctionRepo.ApproveAuction(id);
+                    return Response.create("01", "01", "Auction Approved successfully", x);
+              } else {
+                return Response.create("01", "02", "cannot Approved", null);
+            }
+        }
+        return Response.badRequest();
+         
+        });
+
+    }
+
+    private boolean ifPresent(Auction auction) {
+        return auction.id() != null ||
+               isNotNullOrEmpty(auction.code()) ||
+               isNotNullOrEmpty(auction.name()) ||
+               isNotNullOrEmpty(auction.description()) ||
+               auction.offer() != null ||
+               auction.highestBid() != null ||
+               auction.highestBidderId() != null ||
+               isNotNullOrEmpty(auction.highestBidderName()) ||
+               auction.status() != null ||
+               auction.startedAt() != null ||
+               auction.endedAt() != null ||
+               auction.createdBy() != null ||
+               auction.updatedBy() != null ||
+               auction.deletedBy() != null ||
+               auction.createdAt() != null ||
+               auction.updatedAt() != null ||
+               auction.deletedAt() != null;
+    }
+
+    private boolean isNotNullOrEmpty(String str) {
+        return str != null && !str.trim().isEmpty();
+      }
+
 }
