@@ -228,7 +228,6 @@ class UserServiceTest {
 
     @Test
     void deleteUser_NotFound(){
-        //TODO
         final User admin = userRepository.findById(1L).orElseThrow();
         final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
         Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
