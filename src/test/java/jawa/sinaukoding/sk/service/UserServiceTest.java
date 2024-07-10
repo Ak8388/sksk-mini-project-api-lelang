@@ -222,24 +222,19 @@ class UserServiceTest {
         Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
 
         Response<Object> response = userService.deletedResponse(authentication, Delete, 2L);
-        Assertions.assertEquals("0900", response.code());
-        Assertions.assertEquals("Sukses", response.message());
+        Assertions.assertEquals("1001", response.code());
+        Assertions.assertEquals("Sukses Menghapus Data", response.message());
     }
 
     @Test
     void deleteUser_NotFound(){
         //TODO
         final User admin = userRepository.findById(1L).orElseThrow();
-        //Mockito.when(userRepository.deleteUser(ArgumentMatchers.any())).thenReturn(0L);
         final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
 
         Response<Object> response = userService.deletedResponse(authentication, null, null);
-        Assertions.assertEquals("1001", response.code());
+        Assertions.assertEquals("1002", response.code());
         Assertions.assertEquals("Data Tidak Ditemukan", response.message());
-    }
-
-    @Test
-    void auction_Test() {
-
-    }
+    }    
 }
