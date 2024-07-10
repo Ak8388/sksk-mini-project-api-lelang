@@ -6,6 +6,7 @@ import jawa.sinaukoding.sk.model.request.RegisterBuyerReq;
 import jawa.sinaukoding.sk.model.request.RegisterSellerReq;
 import jawa.sinaukoding.sk.model.request.ResetPasswordReq;
 import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
+import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.service.UserService;
 import jawa.sinaukoding.sk.util.SecurityContextHolder;
 
@@ -57,9 +58,9 @@ public class UserController {
     }
 
     @PostMapping("/delete-user")
-    public Response<Object> deleteUser(@RequestParam (value = "id") Long id) {
+    public Response<Object> deleteUser(@RequestBody deleteReq req) {
         Authentication authentication = SecurityContextHolder.getAuthentication();
-        return userService.deletedResponse(authentication, authentication.id(), id);
+        return userService.deletedResponse(authentication, req, authentication.id());
     }
 
 }

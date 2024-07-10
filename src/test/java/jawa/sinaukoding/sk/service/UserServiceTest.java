@@ -6,6 +6,7 @@ import jawa.sinaukoding.sk.model.request.LoginReq;
 import jawa.sinaukoding.sk.model.request.RegisterBuyerReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.request.RegisterSellerReq;
+import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -210,5 +211,35 @@ class UserServiceTest {
         Response<Object> response = userService.listUsers(authentication, 1, 10);
         Assertions.assertEquals("0900", response.code());
         Assertions.assertEquals("Sukses", response.message());
+    }
+
+    @Test
+    void deleteUser_Succes(){
+        //TODO
+        deleteReq Delete = new deleteReq(1L);
+        final User admin = userRepository.findById(1L).orElseThrow();
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
+
+        Response<Object> response = userService.deletedResponse(authentication, Delete, 2L);
+        Assertions.assertEquals("0900", response.code());
+        Assertions.assertEquals("Sukses", response.message());
+    }
+
+    @Test
+    void deleteUser_NotFound(){
+        //TODO
+        final User admin = userRepository.findById(1L).orElseThrow();
+        //Mockito.when(userRepository.deleteUser(ArgumentMatchers.any())).thenReturn(0L);
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+
+        Response<Object> response = userService.deletedResponse(authentication, null, null);
+        Assertions.assertEquals("1001", response.code());
+        Assertions.assertEquals("Data Tidak Ditemukan", response.message());
+    }
+
+    @Test
+    void auction_Test() {
+
     }
 }
