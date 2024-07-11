@@ -409,6 +409,13 @@ class UserServiceTest {
         verify(userRepository, never()).updatePassword(anyLong(), anyString());
     }
 
+    @Test
+    void resetPasswordBadRequest() {
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.BUYER, null, null, null, OffsetDateTime.now(), null, null);
+        Authentication authentication = new Authentication(user.id(), user.role(), true);
+        final Response<Object> response = userService.resetPassword(authentication, null, 1L);
+        Assertions.assertEquals(Response.badRequest().code(), response.code());
+    }
     
 
 }
