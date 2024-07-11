@@ -274,5 +274,4 @@ public class AuctionService extends AbstractService {
     private boolean isNotNullOrEmpty(String str) {
         return str != null && !str.trim().isEmpty();
       }
-
 }

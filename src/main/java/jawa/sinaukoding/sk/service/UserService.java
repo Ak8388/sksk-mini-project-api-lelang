@@ -12,6 +12,7 @@ import jawa.sinaukoding.sk.model.request.LoginReq;
 import jawa.sinaukoding.sk.model.request.RegisterBuyerReq;
 import jawa.sinaukoding.sk.model.request.RegisterSellerReq;
 import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
+import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.response.UserDto;
 import jawa.sinaukoding.sk.repository.UserRepository;
@@ -236,9 +237,29 @@ public final class UserService extends AbstractService {
 
     }
 
-    public Response<Object> deletedResponse(Authentication authentication,final Long id, Long idUser) {
+    // public Response<Object> deletedResponse(Authentication authentication, final deleteReq req, Long idUser) {
+    //     return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
+    //         Optional<User> userOpt = userRepository.findById(req.id());
+    //         if (userOpt.isEmpty()) {
+    //             return Response.create("08","01", "Email atau password salah", null);
+    //         }
+    //         if (userOpt.get().deletedAt() != null) {
+    //             return Response.badRequest();
+    //         }
+    //         if (req.id() == 0L) {
+    //             return Response.badRequest();
+    //         } 
+    //         Long delete = userRepository.deleteUser(req, idUser);
+    //         if (delete == 0L) {
+    //             return Response.create("06","01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
+    //         }
+    //         return Response.create("06","00", "Berhasil Menghapus", delete);
+    //     });
+    // }
+    
+    public Response<Object> deletedResponse(Authentication authentication,final deleteReq req, Long idUser) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
-            final Optional<User> userOpt = userRepository.findById(idUser);
+            final Optional<User> userOpt = userRepository.findById(req.id());
         if (userOpt.isEmpty()) {
             return Response.create("08", "01", "Email atau password salah", null);
         }
@@ -246,12 +267,11 @@ public final class UserService extends AbstractService {
         if (userOpt.get().deletedAt() != null) {
             return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", null);
         }
-
-        if (id == 0L) {
+        if (req.id() == 0L) {
             return Response.badRequest();
         } 
+        Long delete = userRepository.deleteUser(req, idUser);
 
-        Long delete = userRepository.deleteUser(id, idUser);
         if (delete == 0L) {
             return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
         }
