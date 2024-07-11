@@ -237,6 +237,26 @@ public final class UserService extends AbstractService {
 
     }
 
+    // public Response<Object> deletedResponse(Authentication authentication, final deleteReq req, Long idUser) {
+    //     return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
+    //         Optional<User> userOpt = userRepository.findById(req.id());
+    //         if (userOpt.isEmpty()) {
+    //             return Response.create("08","01", "Email atau password salah", null);
+    //         }
+    //         if (userOpt.get().deletedAt() != null) {
+    //             return Response.badRequest();
+    //         }
+    //         if (req.id() == 0L) {
+    //             return Response.badRequest();
+    //         } 
+    //         Long delete = userRepository.deleteUser(req, idUser);
+    //         if (delete == 0L) {
+    //             return Response.create("06","01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
+    //         }
+    //         return Response.create("06","00", "Berhasil Menghapus", delete);
+    //     });
+    // }
+    
     public Response<Object> deletedResponse(Authentication authentication,final deleteReq req, Long idUser) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
             final Optional<User> userOpt = userRepository.findById(req.id());
@@ -247,19 +267,11 @@ public final class UserService extends AbstractService {
         if (userOpt.get().deletedAt() != null) {
             return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", null);
         }
-<<<<<<< HEAD
         if (req.id() == 0L) {
             return Response.badRequest();
         } 
         Long delete = userRepository.deleteUser(req, idUser);
-=======
 
-        if (id == 0L) {
-            return Response.badRequest();
-        } 
-
-        Long delete = userRepository.deleteUser(id, idUser);
->>>>>>> 42f3dca7ff74be04a57dc4e4f87a2d699cad717b
         if (delete == 0L) {
             return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
         }
