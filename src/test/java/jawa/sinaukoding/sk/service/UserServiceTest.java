@@ -8,6 +8,7 @@ import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.request.RegisterSellerReq;
 import jawa.sinaukoding.sk.model.request.ResetPasswordReq;
 import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
+import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -207,34 +208,17 @@ class UserServiceTest {
     }
 
     @Test
-    void updateProfileUserSuccessTest(){
-        User user = new User(
-            2L, 
-            "Joko",
-            "Jokowidodo@gmail.com",
-            null, 
-            User.Role.BUYER, 
-            1L, 
-            2L, 
-            null, 
-            OffsetDateTime.now(), 
-            OffsetDateTime.now(), 
-            null
-        );
+    void deleteUser_Succes(){
+        //TODO
+        deleteReq Delete = new deleteReq(1L);
+        final User admin = userRepository.findById(1L).orElseThrow();
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
 
-        UpdateProfileReq updateProfileReq = new UpdateProfileReq("jaya jaya jaya", "jayaKusuma@gmail.com");
-        Authentication authentication = new Authentication(user.id(), user.role(), true);
-        Optional<User> useOpt = Optional.of(user);
-
-        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(useOpt);
-
-        Mockito.when(userRepository.updateProfile(ArgumentMatchers.any())).thenReturn(1L);
-        
-        Response<Object> updateProf = userService.updateProfile(authentication, updateProfileReq, user.id());
-
-        Assertions.assertNotNull(updateProf);
-        Assertions.assertEquals("0600",updateProf.code());
-        Assertions.assertEquals("sukses update profile",updateProf.message());
+        Response<Object> response = userService.deletedResponse(authentication, Delete, 2L);
+        Assertions.assertEquals("0600", response.code());
+        Assertions.assertEquals("Berhasil Menghapus", response.message());
+        //Assertions.assertEquals(true, response.data());
     }
 
     @Test
