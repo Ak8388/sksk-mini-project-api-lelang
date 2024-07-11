@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jawa.sinaukoding.sk.model.request.SellerCreateAuctionReq;
+import jawa.sinaukoding.sk.model.request.UpdateHightBidReq;
 import jawa.sinaukoding.sk.util.SecurityContextHolder;
 import jawa.sinaukoding.sk.service.AuctionService;
 
@@ -50,9 +51,9 @@ public class AuctionController {
 
     // buyyer, bisa bid
     @PostMapping("bid-lelang")
-    public Response<Object> bidLelang(@RequestParam(value = "id") Long id){
+    public Response<Object> bidLelang(@RequestBody UpdateHightBidReq req){
         Authentication auth = SecurityContextHolder.getAuthentication();
-        return null;
+        return auctionService.updateHigestBidAndInsertBidTable(auth, req);
     }
 }
 

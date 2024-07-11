@@ -103,36 +103,39 @@ public class AuctionService extends AbstractService {
         return precondition(authentication, User.Role.BUYER).orElseGet(()->{
             Optional<Auction> auction = auctionRepo.findById(updateHightBidReq.auctionID());
 
-            if(auction.isEmpty()){
-                return Response.badRequest();
+            if(auction == null){
+                return Response.create("02","06","auction is empty",null);
             }
 
+            
             Auction aucGet = auction.get();
+
+            if(aucGet.deletedAt() != null){
+                return Response.badRequest();
+            }
             
             if(!aucGet.status().equals(Auction.Status.APPROVED)){
                 return Response.create("01", "03", "tidak bisa bid kepada barang yang belum atau tidak di approve", null);
             }
 
             if(!(OffsetDateTime.now().toLocalDate().isAfter(aucGet.startedAt().toLocalDate()) && OffsetDateTime.now().toLocalDate().isBefore(aucGet.endedAt().toLocalDate()))){
-                return Response.badRequest();
+                return Response.create("02","06","lelang belum di mulai atau sudah selesai",null);
             }
 
             if(updateHightBidReq.highestBid().compareTo(aucGet.highestBid()) <= 0 ){
-                return Response.badRequest();
-            }
+                return Response.create("03","06","highest bid request must be her",null);            }
 
             Optional<User> user = userRepository.findById(authentication.id());
 
-            if(user.isEmpty()){
-                return Response.badRequest();
+            if(user == null){
+                return Response.create("01","07","user is empty",null);
             }
 
             
             User useGet = user.get();
             
             if(useGet.deletedAt() != null){
-                return Response.badRequest();
-            }
+                return Response.create("04","05","user sudah di hapus",null);            }
 
             Auction auction2 = new Auction(null, null, null, null, null, updateHightBidReq.highestBid(), useGet.id(), useGet.name(), null, null, null, null, null, null, null, null, null);
 

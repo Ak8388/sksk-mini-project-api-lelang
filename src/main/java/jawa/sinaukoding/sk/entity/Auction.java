@@ -30,8 +30,9 @@ public record Auction(Long id, //
 
     public PreparedStatement insert(final Connection connection) {
         try {
-            // TODO: INSERT
-            final String sql = "INSERT INTO " + TABLE_NAME + " (code, name, description, offer, started_at, ended_at, highest_bid, highest_bidder_id, hignest_bidder_name, status, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            final String sql = "INSERT INTO " + TABLE_NAME + " (code, name, description, offer, started_at, ended_at, highest_bid, highest_bidder_id, hignest_bidder_name, status, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+
             final PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
             BigDecimal valueOffer = new BigDecimal(offer);
             BigDecimal valueHighest = new BigDecimal(highestBid);
