@@ -150,26 +150,36 @@ public class AuctionRepo {
     public Long updateHigestBidAndInsertBidTable(final Auction auction,final AuctionBid auctionBid){
         try{
             if(jdbcTemplate.update(con ->{
-                PreparedStatement ps = con.prepareStatement("Update From "+Auction.TABLE_NAME+" Set highest_bid=?, highest_bidder_id=?, hignest_bidder_name=? Where id=?");
+                PreparedStatement ps = con.prepareStatement("Update "+Auction.TABLE_NAME+" Set highest_bid=?, highest_bidder_id=?, hignest_bidder_name=? Where id=?");
                 
                 ps.setObject(1, auction.highestBid());
                 ps.setLong(2, auction.highestBidderId());
-                ps.setString(3, auction.name());
+                ps.setString(3, auction.highestBidderName());
                 ps.setLong(4, auction.id());
 
-                PreparedStatement ps2 = con.prepareStatement("Insert Into "+"sk_auction_bit"+" (auction_id, bid, bidder, created_at) Values(?,?,?,?)");
-                ps2.setLong(1,auctionBid.auctionId());
-                ps2.setObject(2, auctionBid.bid());
-                ps2.setLong(3, auctionBid.bidder());
-                ps2.setObject(4, auctionBid.createdAt());
                 return ps;
-            }) > 0){
-                return auction.id();
+            }) > 0){  
+                if(jdbcTemplate.update(con ->{
+                    PreparedStatement ps2 = con.prepareStatement("Insert Into "+"sk_auction_bit"+" (auction_id, bid, bidder, created_at) Values(?,?,?,?)");
+                    ps2.setLong(1,auctionBid.auctionId());
+                    ps2.setObject(2, auctionBid.bid());
+                    ps2.setLong(3, auctionBid.bidder());
+                    ps2.setObject(4, auctionBid.createdAt());
+                    return ps2;
+                }) > 0) {
+                    return 1L;
+                }else{
+                    throw new RuntimeException("Gagal");
+                }
+            }else{
+                throw new RuntimeException("Gagal");
             }
-            return 1L;
+
+
+            
         }catch(Exception e){
             log.error("{}", e);
-            return 0L;
+            throw new RuntimeException(e);
         }
     }
 
