@@ -3,6 +3,8 @@ package jawa.sinaukoding.sk.repository;
 import java.util.Objects;
 import java.util.Optional;
 
+import javax.management.RuntimeErrorException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jawa.sinaukoding.sk.entity.Auction;
 import jawa.sinaukoding.sk.entity.AuctionBid;
+import jawa.sinaukoding.sk.exception.CustomeException1;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -45,8 +48,8 @@ public class AuctionRepo {
             }
         } catch(Exception e){
             log.error("{}", e);
-            return 0L;
-        }  
+            throw new CustomeException1("failed to save");
+        } 
 
     }
 
@@ -65,7 +68,8 @@ public class AuctionRepo {
             }
         } catch (Exception e) {
         System.err.println("error to updating status" + Id + ":" + e.getMessage());
-        return 0L;
+        throw new CustomeException1("Failed rejected");
+
         }
 
     }
@@ -85,7 +89,7 @@ public class AuctionRepo {
             }
         } catch (Exception e) {
         System.err.println("error to updating status" + Id + ":" + e.getMessage());
-        return 0L;
+        throw new CustomeException1("Failed approved");
         }
 
     }
@@ -169,7 +173,7 @@ public class AuctionRepo {
             return 1L;
         }catch(Exception e){
             log.error("{}", e);
-            return 0L;
+            throw new CustomeException1("failed update");
         }
     }
 

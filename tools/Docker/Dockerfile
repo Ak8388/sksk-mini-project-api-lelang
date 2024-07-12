@@ -15,6 +15,6 @@ RUN apk add --no-cache tzdata \
 
 COPY ${JAR} app.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD java $ENV_JAVA_PROPS -jar app.jar $ENV_JAR_ARGS
