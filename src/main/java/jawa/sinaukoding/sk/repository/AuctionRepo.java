@@ -3,8 +3,6 @@ package jawa.sinaukoding.sk.repository;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,13 +17,10 @@ import jawa.sinaukoding.sk.exception.CustomeException1;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.security.Timestamp;
 import java.sql.PreparedStatement;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
-import jawa.sinaukoding.sk.entity.Auction;
 
 
 @Repository

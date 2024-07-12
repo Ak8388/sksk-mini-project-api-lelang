@@ -1,17 +1,10 @@
 package jawa.sinaukoding.sk.controller;
 
-import jawa.sinaukoding.sk.exception.CustomeException1;
 import jawa.sinaukoding.sk.model.Authentication;
 import jawa.sinaukoding.sk.model.Response;
 
 import jawa.sinaukoding.sk.service.AuctionService;
-import jawa.sinaukoding.sk.service.UserService;
 import jawa.sinaukoding.sk.util.SecurityContextHolder;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jawa.sinaukoding.sk.model.request.SellerCreateAuctionReq;
 import jawa.sinaukoding.sk.model.request.UpdateHightBidReq;
-import jawa.sinaukoding.sk.util.SecurityContextHolder;
-import jawa.sinaukoding.sk.service.AuctionService;
+
 
 @RestController
 @RequestMapping("/secured/auction")

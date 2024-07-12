@@ -35,7 +35,7 @@ public class UserRepository {
     }
 
     public List<User> listUsers(int page, int size) {
-        final String sql = "SELECT * FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
+        final String sql = "SELECT Count(),* FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
         final List<User> users = jdbcTemplate.query(sql, new RowMapper<User>() {
             @Override
             public User mapRow(ResultSet rs, int rowNum) throws SQLException {

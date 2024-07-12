@@ -7,7 +7,6 @@ import jawa.sinaukoding.sk.entity.AuctionBid;
 import jawa.sinaukoding.sk.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,7 +20,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
-import jawa.sinaukoding.sk.entity.Auction;
 
 @Service
 public class AuctionService extends AbstractService {
@@ -118,8 +116,9 @@ public class AuctionService extends AbstractService {
             if(!aucGet.status().equals(Auction.Status.APPROVED)){
                 return Response.create("01", "03", "tidak bisa bid kepada barang yang belum atau tidak di approve", null);
             }
-
-            if(OffsetDateTime.now().toLocalDate().isBefore(aucGet.startedAt().toLocalDate()) && OffsetDateTime.now().toLocalDate().isAfter(aucGet.endedAt().toLocalDate())){
+            if(OffsetDateTime.now().toLocalDate().isBefore(aucGet.startedAt().toLocalDate()) || OffsetDateTime.now().toLocalDate().isAfter(aucGet.endedAt().toLocalDate())){
+                System.out.println("ERROR ="+aucGet.startedAt());
+                System.out.println("ERROR ="+aucGet.endedAt());
                 return Response.create("02","06","lelang belum di mulai atau sudah selesai",null);
             }
 

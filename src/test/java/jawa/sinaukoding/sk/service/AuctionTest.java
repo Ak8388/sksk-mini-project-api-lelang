@@ -1,9 +1,5 @@
 package jawa.sinaukoding.sk.service;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
 
 
 import java.math.BigInteger;
@@ -332,8 +328,8 @@ public class AuctionTest {
             1L, 
             "Dukron", 
             Auction.Status.APPROVED, 
-            OffsetDateTime.parse("2024-07-19T14:32:45.123+07:00"), 
-            OffsetDateTime.parse("2025-07-12T14:32:45.123+07:00"), 
+            OffsetDateTime.parse("2024-07-01T14:32:45.123+07:00"), 
+            OffsetDateTime.parse("2024-07-11T14:32:45.123+07:00"), 
             2L, 
             null, 
             null, 
