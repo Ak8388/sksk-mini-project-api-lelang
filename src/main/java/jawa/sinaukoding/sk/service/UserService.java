@@ -3,11 +3,8 @@ package jawa.sinaukoding.sk.service;
 
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import javax.management.relation.Role;
 
 import jawa.sinaukoding.sk.entity.User;
 import jawa.sinaukoding.sk.model.Authentication;
@@ -22,7 +19,6 @@ import jawa.sinaukoding.sk.repository.UserRepository;
 import jawa.sinaukoding.sk.util.HexUtils;
 import jawa.sinaukoding.sk.util.JwtUtils;
 
-import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
