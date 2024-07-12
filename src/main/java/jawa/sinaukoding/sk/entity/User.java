@@ -35,7 +35,7 @@ public record User(Long id, //
     }
 
     public enum Role {
-        ADMIN, BUYER, SELLER, UNKNOWN;
+        ADMIN, BUYER, SELLER, UNKNOWN, roles;
 
         public static Role fromString(String str) {
             if (ADMIN.name().equals(str)) {

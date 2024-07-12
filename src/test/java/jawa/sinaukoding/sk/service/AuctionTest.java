@@ -1,4 +1,11 @@
 package jawa.sinaukoding.sk.service;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
+
+
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -9,16 +16,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.assertj.core.data.Offset;
+
 import org.junit.jupiter.api.Assertions;
 
 import jawa.sinaukoding.sk.repository.AuctionRepo;
@@ -65,6 +69,9 @@ public class AuctionTest {
 
     @Autowired
     private AuctionService auctionService;
+
+    @MockBean
+    private Authentication authentication;
 
     @BeforeEach
     void findAdmin() {
@@ -157,6 +164,72 @@ public class AuctionTest {
         Assertions.assertEquals("sukses membuat pengajuan lelang",response.message());
         Assertions.assertEquals(2L,response.data());
     }
+
+     @Test 
+    void  AuctionRejectedSucces(){
+
+        Auction auction = new Auction(
+            1L,
+            "code",
+            "name",
+            "description",
+            new BigInteger("1000"),
+            new BigInteger("1200"),
+            2L,
+            "highestBidderName",
+            Auction.Status.WAITING_FOR_APPROVAL,
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(1),
+            1L,
+            1L,
+            null,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            null
+    );
+            Mockito.when(auctionRepo.findById(anyLong())).thenReturn(Optional.of(auction));
+            Mockito.when(auctionRepo.ApproveAuction(anyLong())).thenReturn(1L);
+            final User admin = userRepository.findById(1L).orElseThrow();
+            final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+    
+            Response<Object> response = auctionService.rejectAuction(authentication, 1L);
+            Assertions.assertEquals("0700", response.code());
+            Assertions.assertEquals("Auction rejected", response.message());
+    }
+
+
+
+    @Test
+    public void rejectAuctionBadRequest() {
+        Auction auction = new Auction(
+            1L,
+            "code",
+            "name",
+            "description",
+            new BigInteger("1000"),
+            new BigInteger("1200"),
+            2L,
+            "highestBidderName",
+            Auction.Status.REJECTED, 
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(1),
+            1L,
+            1L,
+            null,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            null
+        );
+
+        Mockito.when(auctionRepo.findById(anyLong())).thenReturn(Optional.of(auction));
+        final User admin = userRepository.findById(1L).orElseThrow();
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Response<Object> response = auctionService.rejectAuction(authentication, 1L);
+        Assertions.assertEquals("0301", response.code());
+        Assertions.assertEquals("bad request", response.message()); 
+
+    }
+
     
     @Test
     public void updateHigestBidAndInsertBidTableSuccessTest(){
@@ -472,4 +545,67 @@ public class AuctionTest {
         Assertions.assertEquals("bad request", response.message());        
     }
 
+
+    @Test
+    public void approveAuctionSucces() {
+        Auction auction = new Auction(
+            1L,
+            "code",
+            "name",
+            "description",
+            new BigInteger("1000"),
+            new BigInteger("1200"),
+            2L,
+            "highestBidderName",
+            Auction.Status.WAITING_FOR_APPROVAL,
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(1),
+            1L,
+            1L,
+            null,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            null
+    );
+            Mockito.when(auctionRepo.findById(anyLong())).thenReturn(Optional.of(auction));
+            Mockito.when(auctionRepo.ApproveAuction(anyLong())).thenReturn(1L);
+            final User admin = userRepository.findById(1L).orElseThrow();
+            final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+    
+            Response<Object> response = auctionService.ApproveAuction(authentication, 1L);
+            Assertions.assertEquals("0101", response.code());
+            Assertions.assertEquals("Auction Approved successfully", response.message());
+            Assertions.assertEquals(1L, response.data());
+        }
+
+    @Test
+    public void approveAuctionBadRequest() {
+        Auction auction = new Auction(
+            1L,
+            "code",
+            "name",
+            "description",
+            new BigInteger("1000"),
+            new BigInteger("1200"),
+            2L,
+            "highestBidderName",
+            Auction.Status.APPROVED, // Auction already approved
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(1),
+            1L,
+            1L,
+            null,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            null
+        );
+
+        Mockito.when(auctionRepo.findById(anyLong())).thenReturn(Optional.of(auction));
+        final User admin = userRepository.findById(1L).orElseThrow();
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Response<Object> response = auctionService.ApproveAuction(authentication, 1L);
+        Assertions.assertEquals("0301", response.code());
+        Assertions.assertEquals("bad request", response.message()); 
+
+    }
 }

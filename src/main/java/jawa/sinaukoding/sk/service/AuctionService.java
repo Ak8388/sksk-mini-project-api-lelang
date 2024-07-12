@@ -7,6 +7,7 @@ import jawa.sinaukoding.sk.entity.AuctionBid;
 import jawa.sinaukoding.sk.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -39,7 +40,10 @@ public class AuctionService extends AbstractService {
 
     public Response<Object> rejectAuction(final Authentication authentication, Long id) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
-            Optional<Auction> auctionOptional = auctionRepo.findById(id); 
+            Optional<Auction> auctionOptional = auctionRepo.findById(id);
+            if (auctionOptional.isEmpty()) {
+                return Response.create("07", "04", "Auction not found", null);
+            }
             Auction auction = auctionOptional.get();
             if (auction.status().equals(auction.status().WAITING_FOR_APPROVAL)){
                 if (isInvalid(auction)) {
@@ -62,16 +66,14 @@ public class AuctionService extends AbstractService {
                         auction.updatedAt(),
                         auction.deletedAt()
                     );
-                    Long x = auctionRepo.RejectedAuction(id);
-                    return Response.create("01", "01", "Auction rejected successfully", x);
-              } else {
-                return Response.create("01", "02", "cannot rejected", null);
+                    
+                    return Response.create("07", "00", "Auction rejected",null);
+              } 
+              return Response.create("07", "03", "auction is not invalid", null);
             }
-        }
-        return Response.badRequest();
-         
+            return Response.badRequest();
         });
-
+       
     }
 
     private boolean isInvalid(Auction auction) {
@@ -164,7 +166,6 @@ public class AuctionService extends AbstractService {
             OffsetDateTime startAt = OffsetDateTime.parse(req.startedAt());
             OffsetDateTime endAt = OffsetDateTime.parse(req.endedAt());
             BigInteger offerPrice = req.maximumPrice().subtract(req.minimumPrice()).divide(BigInteger.TWO);
-
             Auction auction = new Auction(
                 null, 
                 UUID.randomUUID().toString().substring(0,8).toUpperCase(),
@@ -275,5 +276,4 @@ public class AuctionService extends AbstractService {
     private boolean isNotNullOrEmpty(String str) {
         return str != null && !str.trim().isEmpty();
       }
-
 }

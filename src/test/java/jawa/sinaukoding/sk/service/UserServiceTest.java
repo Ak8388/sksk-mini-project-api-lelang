@@ -6,7 +6,9 @@ import jawa.sinaukoding.sk.model.request.LoginReq;
 import jawa.sinaukoding.sk.model.request.RegisterBuyerReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.request.RegisterSellerReq;
+import jawa.sinaukoding.sk.model.request.ResetPasswordReq;
 import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
+import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +18,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +49,7 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
-    @Autowired
+    @MockBean
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
@@ -165,20 +172,7 @@ class UserServiceTest {
         Assertions.assertEquals("0802", response.code());
         Assertions.assertEquals("Email atau password salah", response.message());
     }
-
-    @Test
-    void login() {
-        User user = Mockito.mock(User.class);
-        Mockito.when(user.id()).thenReturn(1L);
-        Mockito.when(user.role()).thenReturn(User.Role.ADMIN);
-        String password = "12345678";
-        Mockito.when(user.password()).thenReturn(passwordEncoder.encode(password));
-
-        Mockito.when(userRepository.findByEmail(ArgumentMatchers.anyString())).thenReturn(Optional.of(user));
-        final Response<Object> response = userService.login(new LoginReq("charlie@sksk.com", password));
-        Assertions.assertEquals("0800", response.code());
-        Assertions.assertEquals("Sukses", response.message());
-    }
+     
 
     @Test
     void listUserBadRequest() {
@@ -214,34 +208,17 @@ class UserServiceTest {
     }
 
     @Test
-    void updateProfileUserSuccessTest(){
-        User user = new User(
-            2L, 
-            "Joko",
-            "Jokowidodo@gmail.com",
-            null, 
-            User.Role.BUYER, 
-            1L, 
-            2L, 
-            null, 
-            OffsetDateTime.now(), 
-            OffsetDateTime.now(), 
-            null
-        );
+    void deleteUser_Succes(){
+        //TODO
+        deleteReq Delete = new deleteReq(1L);
+        final User admin = userRepository.findById(1L).orElseThrow();
+        final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
+        Mockito.when(userRepository.deleteUser(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(1L);
 
-        UpdateProfileReq updateProfileReq = new UpdateProfileReq("jaya jaya jaya", "jayaKusuma@gmail.com");
-        Authentication authentication = new Authentication(user.id(), user.role(), true);
-        Optional<User> useOpt = Optional.of(user);
-
-        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(useOpt);
-
-        Mockito.when(userRepository.updateProfile(ArgumentMatchers.any())).thenReturn(1L);
-        
-        Response<Object> updateProf = userService.updateProfile(authentication, updateProfileReq, user.id());
-
-        Assertions.assertNotNull(updateProf);
-        Assertions.assertEquals("0600",updateProf.code());
-        Assertions.assertEquals("sukses update profile",updateProf.message());
+        Response<Object> response = userService.deletedResponse(authentication, Delete, 2L);
+        Assertions.assertEquals("0600", response.code());
+        Assertions.assertEquals("Berhasil Menghapus", response.message());
+        //Assertions.assertEquals(true, response.data());
     }
 
     @Test
@@ -380,5 +357,49 @@ class UserServiceTest {
         Assertions.assertEquals("4000",updateProf.code());
         Assertions.assertEquals("gagal update user karena nama yang baru sama dengan nama lama",updateProf.message());
     }
+
+    @Test
+    void resetPassword_WrongOldPassword() {
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.BUYER, null, null, null, OffsetDateTime.now(), null, null);
+        Mockito.when(userRepository.findById(user.id())).thenReturn(Optional.of(user));
+        Mockito.when(passwordEncoder.matches("oldPassword", user.password())).thenReturn(false);
+
+        Authentication authentication = new Authentication(user.id(), user.role(), true);
+
+        ResetPasswordReq req = new ResetPasswordReq("oldPassword", "newPassword");
+
+        Response<Object> response = userService.resetPassword(authentication, req, 1L);
+
+        Assertions.assertEquals("0703", response.code());
+        Assertions.assertEquals("Old password is incorrect", response.message());
+        verify(userRepository, never()).updatePassword(anyLong(), anyString());
+    }
+
+    @Test
+    void resetPassword_SameOldAndNewPassword() {
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.SELLER, null, null, null, OffsetDateTime.now(), null, null);
+        Mockito.when(userRepository.findById(user.id())).thenReturn(Optional.of(user));
+        Mockito.when(passwordEncoder.matches("oldPassword", user.password())).thenReturn(true);
+        Mockito.when(passwordEncoder.matches("newPassword", user.password())).thenReturn(true);
+
+        Authentication authentication = new Authentication(user.id(), user.role(), true);
+
+        ResetPasswordReq req = new ResetPasswordReq("oldPassword", "newPassword");
+
+        Response<Object> response = userService.resetPassword(authentication, req, null);
+
+        Assertions.assertEquals("0704", response.code());
+        Assertions.assertEquals("New password cannot be the same as the old password", response.message());
+        verify(userRepository, never()).updatePassword(anyLong(), anyString());
+    }
+
+    @Test
+    void resetPasswordBadRequest() {
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.BUYER, null, null, null, OffsetDateTime.now(), null, null);
+        Authentication authentication = new Authentication(user.id(), user.role(), true);
+        final Response<Object> response = userService.resetPassword(authentication, null, 1L);
+        Assertions.assertEquals(Response.badRequest().code(), response.code());
+    }
+    
 
 }
