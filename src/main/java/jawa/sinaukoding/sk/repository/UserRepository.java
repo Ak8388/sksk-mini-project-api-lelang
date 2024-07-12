@@ -1,6 +1,7 @@
 package jawa.sinaukoding.sk.repository;
 
 import jawa.sinaukoding.sk.entity.User;
+import jawa.sinaukoding.sk.exception.CustomeException1;
 import jawa.sinaukoding.sk.model.request.deleteReq;
 
 import org.slf4j.Logger;
@@ -68,7 +69,8 @@ public class UserRepository {
             }
         } catch (Exception e) {
             log.error("{}", e.getMessage());
-            return 0L;
+            throw new CustomeException1("Failed save seller");
+
         }
     }
 
@@ -82,7 +84,8 @@ public class UserRepository {
             }
         } catch (Exception e) {
             log.error("{}", e.getMessage());
-            return 0L;
+            throw new CustomeException1("Failed save");
+
         }
     }
 
@@ -102,7 +105,7 @@ public class UserRepository {
             
         } catch (Exception e) {
            System.err.println("Error reset password for user id" + userId + ": " + e.getMessage());
-           return 0L;
+           throw new CustomeException1("Failed to update ");
         }
         
 
@@ -212,16 +215,22 @@ public class UserRepository {
     }
 
     public Long deleteUser(final deleteReq req, Long idUser) {
-        if (jdbcTemplate.update(con -> {
-            final PreparedStatement ps = con.prepareStatement("UPDATE " + User.TABLE_NAME + " SET deleted_by=?, deleted_at=CURRENT_TIMESTAMP WHERE id=?");
-            ps.setLong(1, idUser);
-            ps.setLong(2, req.id());
-            return ps;
-        }) > 0) {
-            return req.id();
-        } else {
-            return 0L;
-
+        try {
+            if (jdbcTemplate.update(con -> {
+                final PreparedStatement ps = con.prepareStatement("UPDATE " + User.TABLE_NAME + " SET deleted_by=?, deleted_at=CURRENT_TIMESTAMP WHERE id=?");
+                ps.setLong(1, idUser);
+                ps.setLong(2, req.id());
+                return ps;
+            }) > 0) {
+                return req.id();
+            } else {
+                return 0L;
+    
+            }
+            
+        } catch (Exception e) {
+           throw new CustomeException1("failed to delete");
         }
+       
     }
 }
