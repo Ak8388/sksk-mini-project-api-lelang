@@ -1,10 +1,11 @@
 package jawa.sinaukoding.sk.service;
 import static org.mockito.ArgumentMatchers.anyLong;
-
+import static org.mockito.Mockito.never;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Assertions;
 
 import jawa.sinaukoding.sk.repository.AuctionRepo;
@@ -602,6 +603,56 @@ public class AuctionTest {
         Response<Object> response = auctionService.ApproveAuction(authentication, 1L);
         Assertions.assertEquals("0301", response.code());
         Assertions.assertEquals("bad request", response.message()); 
+    }
 
+    @Test
+    public void SuccessListAuctionTest(){
+        Auction auction = new Auction(
+            1L, 
+            null,
+            "Jsutin", 
+            "Justin Bibeh", 
+            BigInteger.valueOf(1000000), 
+            BigInteger.valueOf(12000000), 
+            2L, 
+            "Joko Anwar", 
+            Auction.Status.APPROVED, 
+            OffsetDateTime.now(), 
+            OffsetDateTime.now(), 
+            null, 
+            null, 
+            null, 
+            null, 
+            null, 
+            null);
+
+        List<Auction> listAuct = List.of(auction);
+
+        Authentication auth = new Authentication(1L,User.Role.ADMIN, true);
+
+        Mockito.when(auctionRepo.listAuction(1, 10, auction.status().toString())).thenReturn(listAuct);
+
+        Mockito.when(auctionRepo.countData(ArgumentMatchers.any())).thenReturn(3L);
+
+        Response<Object> res = auctionService.listAuction(auth, 1, 10, "APPROVED");
+
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals("2001", res.code());
+        Assertions.assertEquals("success get data", res.message());
+    }
+
+    @Test
+    public void ListAuctionFailed(){
+        Authentication authentication = new Authentication(1L, User.Role.ADMIN, true);
+        Response<Object> res1 = auctionService.listAuction(authentication, 0, 0, "APPROVED");
+
+        Assertions.assertNotNull(res1);
+        Assertions.assertEquals("0206",res1.code());
+        Assertions.assertEquals("size atau page tidak boleh kosong",res1.message());
+
+        Response<Object> res2 = auctionService.listAuction(authentication, 1, 10, "         ");
+        
+        Assertions.assertEquals("0207",res2.code());
+        Assertions.assertEquals("status tidak boleh kosong",res2.message());
     }
 }
