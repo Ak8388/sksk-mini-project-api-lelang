@@ -171,7 +171,6 @@ public class AuctionService extends AbstractService {
             }
 
             Auction auction2 = new Auction(aucGet.id(), null, null, null, null, updateHightBidReq.highestBid(), useGet.id(), useGet.name(), null, null, null, null, null, null, null, null, null);
-
             AuctionBid auctionBid = new AuctionBid(null, aucGet.id(), updateHightBidReq.highestBid(), useGet.id(), OffsetDateTime.now(ZoneOffset.UTC));
 
             Long auctionRepository = auctionRepo.updateHigestBidAndInsertBidTable(auction2, auctionBid);
