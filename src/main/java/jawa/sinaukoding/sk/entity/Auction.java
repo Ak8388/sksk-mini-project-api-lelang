@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.OffsetDateTime;
 
+import jawa.sinaukoding.sk.exception.CustomeException1;
+
 public record Auction(Long id, //
                       String code, //
                       String name, //
@@ -31,7 +33,7 @@ public record Auction(Long id, //
     public PreparedStatement insert(final Connection connection) {
         try {
 
-            final String sql = "INSERT INTO " + TABLE_NAME + " (code, name, description, offer, started_at, ended_at, highest_bid, highest_bidder_id, hignest_bidder_name, status, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+            final String sql = "INSERT INTO " + TABLE_NAME + " (code, name, description, offer, started_at, ended_at, highest_bid, highest_bidder_id, hignest_bidder_name, status, created_by, created_at) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             final PreparedStatement ps = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
             BigDecimal valueOffer = new BigDecimal(offer);
@@ -51,12 +53,24 @@ public record Auction(Long id, //
 
             return ps;
         } catch (Exception e) {
-            
-            return null;
+            System.out.println(e.getMessage());
+            throw new CustomeException1("gagal insert");
         }
     }
 
     public enum Status {
-        WAITING_FOR_APPROVAL, APPROVED, REJECTED, CLOSED
+        WAITING_FOR_APPROVAL, APPROVED, REJECTED, CLOSED;
+
+        public static Status fromString(String string) {
+            if (WAITING_FOR_APPROVAL.name().equals(string)) {
+                return WAITING_FOR_APPROVAL;
+            } else if (APPROVED.name().equals(string)) {
+                return APPROVED;
+            } else if (REJECTED.name().equals(string)) {
+                return REJECTED;
+            } else {
+                return CLOSED;
+            }
+        }
     }
 }
