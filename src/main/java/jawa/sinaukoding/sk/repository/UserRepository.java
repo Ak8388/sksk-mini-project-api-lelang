@@ -35,28 +35,41 @@ public class UserRepository {
     }
 
     public List<User> listUsers(int page, int size) {
-        final String sql = "SELECT Count(),* FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
-        final List<User> users = jdbcTemplate.query(sql, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                final User.Role role = User.Role.fromString(rs.getString("role"));
-                final Timestamp createdAt = rs.getTimestamp("created_at");
-                final Timestamp updatedAt = rs.getTimestamp("updated_at");
-                final Timestamp deletedAt = rs.getTimestamp("deleted_at");
-                return new User(rs.getLong("id"), //
-                        rs.getString("name"), //
-                        rs.getString("email"), //
-                        rs.getString("password"), //
-                        role, //
-                        rs.getLong("created_by"), //
-                        rs.getLong("updated_by"), //
-                        rs.getLong("deleted_by"), //
-                        createdAt == null ? null : createdAt.toInstant().atOffset(ZoneOffset.UTC), //
-                        updatedAt == null ? null : updatedAt.toInstant().atOffset(ZoneOffset.UTC), //
-                        deletedAt == null ? null : deletedAt.toInstant().atOffset(ZoneOffset.UTC)); //
-            }
-        });
-        return users;
+        try{
+            final String sql = "SELECT id, name, role FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
+
+            final List<User> users = jdbcTemplate.query(sql, new RowMapper<User>() {
+                @Override
+                public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                    final User.Role role = User.Role.fromString(rs.getString("role"));
+                    return new User(
+                            rs.getLong("id"), //
+                            rs.getString("name"), //
+                            null, //
+                            null, //
+                            role, //
+                            null, //
+                            null, //
+                            null, //
+                            null, //
+                            null, //
+                            null); //
+                }
+
+                
+            });
+            return users;
+        }catch(Exception e){
+            throw new CustomeException1("gagal ambil data");
+        }
+    }
+
+    public Long listCountData(){
+        try{
+            return jdbcTemplate.queryForObject("select count(id) from "+User.TABLE_NAME, Long.class);
+        }catch(Exception e){
+            throw new CustomeException1("gagal count data");
+        }
     }
 
     public long saveSeller(final User user) {

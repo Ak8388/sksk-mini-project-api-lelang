@@ -15,6 +15,7 @@ import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
 import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.response.UserDto;
+import jawa.sinaukoding.sk.model.response.ResponseUserDto;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import jawa.sinaukoding.sk.util.HexUtils;
 import jawa.sinaukoding.sk.util.JwtUtils;
@@ -48,8 +49,19 @@ public final class UserService extends AbstractService {
                 return Response.badRequest();
             }
             final List<UserDto> users = userRepository.listUsers(page, size) //
-                    .stream().map(user -> new UserDto(user.name(), user.role())).toList();
-            return Response.create("09", "00", "Sukses", users);
+                    .stream().map(user -> new UserDto(user.id(),user.name(),user.role())).toList();
+
+            final Long jumlahData = userRepository.listCountData();
+
+            Long totalPage = Long.valueOf(jumlahData/size);
+
+            if(totalPage<1){
+                totalPage += 1;
+            }
+
+            ResponseUserDto userDtoResponse = new ResponseUserDto(jumlahData, totalPage, Long.valueOf(page), Long.valueOf(size), users);
+
+            return Response.create("09", "00", "Sukses", userDtoResponse);
         });
     }
 
