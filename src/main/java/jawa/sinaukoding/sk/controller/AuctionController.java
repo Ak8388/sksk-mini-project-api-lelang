@@ -41,7 +41,7 @@ public class AuctionController {
     }
 
     // admin, bisa reject
-    @PostMapping("reject")
+    @PostMapping("reject-auction")
     public Response<Object> rejectAuction( @RequestParam (value = "id") Long id) {
 
         Authentication authentication = SecurityContextHolder.getAuthentication();
