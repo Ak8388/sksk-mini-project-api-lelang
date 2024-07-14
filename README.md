@@ -1,5 +1,18 @@
+## Cara Install 
+- Install JDK 21 : https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip
+- Cek Java version
+``` 
+$ java --version
+openjdk 21.0.3 2024-04-16 LTS
+```
+- Install Maven : https://maven.apache.org/download.cgi
+- Cek Maven version
+```
+$ mvn --version
+Apache Maven 3.9.8
+```
 
-### Cara Menjalankan Program
+## Cara Menjalankan Program
 
 * Jalankan database migration tools
 ```bash
