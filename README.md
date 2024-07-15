@@ -23,6 +23,11 @@ Apache Maven 3.9.8
 ```bash
 ./mvnw spring-boot:run 
 ```
+
+## Pengujian API dengan Postman
+```
+Cara install : https://www.postman.com/downloads/
+```
 ## Login
 
 ### Endpoint
