@@ -1,6 +1,5 @@
 package jawa.sinaukoding.sk.service;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
 
 import java.math.BigInteger;
 import java.time.OffsetDateTime;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Assertions;
 
 import jawa.sinaukoding.sk.repository.AuctionRepo;
@@ -386,7 +384,7 @@ public class AuctionTest {
         Response<Object> response = auctionService.updateHigestBidAndInsertBidTable(authentication, req);
 
         Assertions.assertEquals("0306", response.code());
-        Assertions.assertEquals("highest bid request must be her", response.message());        
+        Assertions.assertEquals("highest bid request must be higher", response.message());        
     }
 
     @Test
@@ -570,7 +568,7 @@ public class AuctionTest {
             final Authentication authentication = new Authentication(admin.id(), admin.role(), true);
     
             Response<Object> response = auctionService.ApproveAuction(authentication, 1L);
-            Assertions.assertEquals("0101", response.code());
+            Assertions.assertEquals("0500", response.code());
             Assertions.assertEquals("Auction Approved successfully", response.message());
             Assertions.assertEquals(1L, response.data());
         }
