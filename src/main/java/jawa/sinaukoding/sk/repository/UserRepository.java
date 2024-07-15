@@ -35,7 +35,7 @@ public class UserRepository {
 
     public List<User> listUsers(int page, int size) {
         try{
-            final String sql = "SELECT id, name, role FROM %s".formatted(User.TABLE_NAME)+" Limit "+size+" OFFSET "+(page*size-size); 
+            final String sql = "SELECT id, name, role FROM %s".formatted(User.TABLE_NAME)+" Where deleted_at IS NULL Limit "+size+" OFFSET "+(page*size-size); 
 
             final List<User> users = jdbcTemplate.query(sql, new RowMapper<User>() {
                 @Override
