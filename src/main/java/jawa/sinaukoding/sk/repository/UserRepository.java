@@ -238,7 +238,6 @@ public class UserRepository {
                 return req.id();
             } else {
                 return 0L;
-    
             }
             
         } catch (Exception e) {
