@@ -236,40 +236,16 @@ public final class UserService extends AbstractService {
         });
 
     }
-
-    // public Response<Object> deletedResponse(Authentication authentication, final deleteReq req, Long idUser) {
-    //     return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
-    //         Optional<User> userOpt = userRepository.findById(req.id());
-    //         if (userOpt.isEmpty()) {
-    //             return Response.create("08","01", "Email atau password salah", null);
-    //         }
-    //         if (userOpt.get().deletedAt() != null) {
-    //             return Response.badRequest();
-    //         }
-    //         if (req.id() == 0L) {
-    //             return Response.badRequest();
-    //         } 
-    //         Long delete = userRepository.deleteUser(req, idUser);
-    //         if (delete == 0L) {
-    //             return Response.create("06","01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", delete);
-    //         }
-    //         return Response.create("06","00", "Berhasil Menghapus", delete);
-    //     });
-    // }
-    
     public Response<Object> deletedResponse(Authentication authentication,final deleteReq req, Long idUser) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
             final Optional<User> userOpt = userRepository.findById(req.id());
-        if (userOpt.isEmpty()) {
-            return Response.create("08", "01", "Email atau password salah", null);
-        }
 
-        if (userOpt.get().deletedAt() != null) {
-            return Response.create("06", "01", "Gagal menghapus. Data sudah di hapus atau data tidak ditemukan", null);
-        }
-        if (req.id() == 0L) {
+        if (req.id() == null) {
             return Response.badRequest();
-        } 
+        }
+        if (userOpt.get().deletedAt() != null) {
+            return Response.create("06", "01", "Gagal menghapus. Data sudah dihapus", null);
+        }
         Long delete = userRepository.deleteUser(req, idUser);
 
         if (delete == 0L) {
@@ -278,6 +254,5 @@ public final class UserService extends AbstractService {
         return Response.create("06", "00", "Berhasil Menghapus", delete);
         }
         );
-
-    }
+     }
 }

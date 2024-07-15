@@ -220,7 +220,7 @@ public class UserRepository {
         }) > 0) {
             return req.id();
         } else {
-            return 0L;
+            return null;
 
         }
     }
