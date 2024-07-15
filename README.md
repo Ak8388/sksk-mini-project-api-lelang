@@ -18,6 +18,10 @@ Apache Maven 3.9.8
 ```bash
 ./mvnw clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf
 ```
+## Jika menggunakan windows 
+``` 
+jalanakan perintah menggunakan gitbash comand atau cmd "mvn clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf"
+```
 
 * Jalankan aplikasi
 ```bash
