@@ -1,6 +1,18 @@
+## Cara Install 
+- Install JDK 21 : https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.zip
+- Cek Java version
+``` 
+$ java --version
+openjdk 21.0.3 2024-04-16 LTS
+```
+- Install Maven : https://maven.apache.org/download.cgi
+- Cek Maven version
+```
+$ mvn --version
+Apache Maven 3.9.8
+```
 
-### Cara Menjalankan Program
-
+## Cara Menjalankan Program
 
 * Jalankan database migration tools
 ```bash
@@ -15,7 +27,7 @@
 
 ### Endpoint
 ```
-POST |  "http://localhost:8080/login"
+POST |  "http://localhost:8081/login"
 ```
 - body : 
 ``` 
@@ -45,17 +57,15 @@ POST |  "http://localhost:8080/login"
 ## List User :
 ### Endpoint 
 ```
-GET |  "http://localhost:8080/secured/user/list"
+GET |  "http://localhost:8081/secured/user/list"
 ```
 ```
-GET |  "http://localhost:8080/secured/user/list?page=&&"
+GET |  "http://localhost:8081/secured/user/list?page=2&size=5"
 ```
 - Header
 ```
 Authorization : Bearer <token User (ADMIN/SELLER/BUYER)>
 ```
-
-
 ### Response
 
 - sukses
@@ -71,32 +81,16 @@ Authorization : Bearer <token User (ADMIN/SELLER/BUYER)>
   ]
 }
 ```
-- pagination
-```
-{
-    "id":"1",
-    "name":"Charlie",
-    "role":"ADMIN"
-}
-```
-- null
-```
-{
-    "id":"1",
-    "name":"Charlie",
-    "role":"ADMIN"
-}
-```
 
 ## Register 
 * Seller : 
 ### Endpoint
 ```
-POST |  "http://localhost:8080/secured/user/register-seller"
+POST |  "http://localhost:8081/secured/user/register-seller"
 ```
 - Header
 ```
-Authorization : Bearer <token admin >
+Authorization : Bearer <token admin>
 ```
 
 - body : 
@@ -119,7 +113,7 @@ Authorization : Bearer <token admin >
 * Buyer : 
 ### Endpoint
 ```
-POST |  "http://localhost:8080/secured/user/register-buyer"
+POST |  "http://localhost:8081/secured/user/register-buyer"
 ```
 - Header
 ```
@@ -147,11 +141,11 @@ Authorization : Bearer <token admin >
 ## Reset Password : 
 ### Endpoint
 ```
-POST | "http://localhost:8080/secured/user/reset-password"
+POST | "http://localhost:8081/secured/user/reset-password"
 ```
 - Header
 ```
-Authorization : Bearer <token Admin atau User itu Sendiri : Seller/Buyer>
+Authorization : Bearer <token Admin User>
 ```
 
 - body : 
@@ -188,42 +182,15 @@ Authorization : Bearer <token Admin atau User itu Sendiri : Seller/Buyer>
 }
 ```
 
-- user not found
-``` 
-{
-    "email"    : "charlie@example.com",
-    "password" : "12345678",
-    "role"     : "BUYER"
-}
-```
-
--akun sudah di hapus
-```
-{
-  "code": "0706",
-  "message": "Account has been deleted",
-  "data": null
-}
-```
-
-- badrequest
-``` 
-{
-    "email"    : "charlie@example.com",
-    "password" : "12345678",
-    "role"     : "BUYER"
-}
-```
-
 ## Update Profile : 
 ### Endpoint
 ```
 POST |
-"http://localhost:8080/secured/user/update-profile"
+"http://localhost:8081/secured/user/update-profile"
 ```
 - Header
 ```
-Authorization : Bearer <token Admin atau User itu Sendiri : Seller/Buyer>
+Authorization : Bearer <token Admin User>
 ```
 
 - body  
@@ -243,14 +210,6 @@ Authorization : Bearer <token Admin atau User itu Sendiri : Seller/Buyer>
 }
 ```
 
-- badrequest
-``` 
-{
-    "nama" : "12345678",
-    "email" : "2345678"
-}
-```
-
 ## Delete User 
 ### Seller : 
 - Endpoint
@@ -260,7 +219,7 @@ POST | "http://localhost:8081/secured/user/delete-user"
 ```
 - Header
 ```
-Authorization : Bearer <token User>
+Authorization : Bearer <token Admin>
 ```
 - body : 
 ``` 
@@ -272,38 +231,42 @@ Authorization : Bearer <token User>
 - sukses
     ```
     {
-        "message" : "12345678",
-        "email" : "2345678"
+    "code": "0600",
+    "message": "Berhasil Menghapus",
+    "data": 3
     }
     ```
-- not found user
-    ```
-    {
-        "message" : "12345678",
-        "email" : "2345678"
-    }
-    ```
-- unauthorized
-```
-{
-  "code": "0201",
-  "message": "unauthorized",
-  "data": null
-}
-```
 
 ### Buyer: 
 - Endpoint
-
-    - sukses
-    - not found user
-
+```
+POST | "http://localhost:8081/secured/user/delete-user"
+```
+- Header
+```
+Authorization : Bearer <token Admin>
+```
+- body : 
+``` 
+{
+    "id" : "1"
+}
+```
+### Response
+- sukses
+    ```
+    {
+    "code": "0600",
+    "message": "Berhasil Menghapus",
+    "data": 3
+    }
+    ```
 
 ## Auction
 ### Create : 
 - Endpoint
 ```
-POST | "http://localhost:8080/create-auction"
+POST | "http://localhost:8081/secured/auction/create-auction"
 
 ```
 - Header
@@ -313,42 +276,108 @@ Authorization : Bearer <token Seller>
 - body : 
 ``` 
 {
-    "id" : "1"
+  "name":"Lukisan Watermelon Sugar",
+  "description":"pelelangan lukisan watermelon sugar, inspired by twinkling watermelon",
+  "minimumPrice":"2000000",
+  "maximumPrice":"200000000",
+  "startedAt":"2024-07-20T20:00:45.123+07:00",
+  "endedAt":"2024-07-21T09:00:45.123+07:00"
 }
 ```
 ### Response 
 - sukses
     ``` 
         {
-            "id" : "1"
+        "code": "2001",
+        "message": "sukses membuat pengajuan lelang",
+        "data": 12
         }
     ```
-- badrequest,
+- validasi waktu,
     ``` 
         {
-            "message" : "1",
-            "data:"null",
+        "code": "4000",
+        "message": "waktu lelang tidak boleh kurang atau sama dengan hari ini",
+        "data": null
         }
     ```
 
 ### List : 
-- Endpoint
-    - semua data,
-    - pagination, 
-    - null
+-Endpoint
+```
+GET | "http://localhost:8081/secured/auction/list-auction"
 
+Get | "http://localhost:8081/secured/auction/list-auction?status=APPROVED&page=1&size=1"
+
+```
+- Header
+```
+Authorization : Bearer <token Admin>
+```
+### Response
+
+- sukses
+    ```
+    {
+    "code": "2001",
+    "message": "success get data",
+    "data": {
+        "totalData": 3,
+        "totalPage": 1,
+        "page": 1,
+        "offset": 10,
+        "auctionData": [
+        {
+            "id": 9,
+            "name": "lelang baju PUB",
+            "description": "baju ini bekas di pake oleh mamng gufron sh mh mah mah",
+            "offer": 245000,
+            "highestBid": 12000000,
+            "highestBidderId": 3,
+            "highestBidderName": "hafiz",
+            "status": "APPROVED",
+            "startedAt": "2024-07-10T23:10:45.123+07:00",
+            "endedAt": "2024-07-15T14:32:45.123+07:00"
+        }
+        ]
+        }
+    }
+    ``` 
 ### Bid Auction : 
 - Endpoint
-    - sukses, 
+```
+POST | "http://localhost:8081/secured/auction/bid-lelang"
+```
+- Header
+```
+Authorization : Bearer <token buyer>
+```
+- body : 
+```
+{
+"auctionID":"12",
+"highestBid":"99000000"
+}
+```
+### Respon
+- sukses
 
-### Update High Bid : 
-- Endpoint
-    - sukses,
+    ```
+    {
+    "code": "0107",
+    "message": "sukses bid lelang",
+    "data": [
+        "auctionID":"12",
+        "highestBid":"99000000"
+    ]
+    }
+    ```
+
 
 ### Rejected :
 - Endpoint
 ```
-POST | "http://localhost:8080/secured/auction/reject?=id"
+POST | "http://localhost:8081/secured/auction/reject-auction?=id"
 
 ```
 - Header
@@ -360,30 +389,16 @@ Authorization : Bearer <token Admin>
  - sukses
     ```
         {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-
- - badrequest
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-- not found
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
+        "code": "0700",
+        "message": "Auction Rejected",
+        "data": 12
         }
     ```
 
 ### Approved : 
 - Endpoint
 ```
-POST | "http://localhost:8080/approve?=id"
+POST | "http://localhost:8081/secured/auction/approve-auction?=id"
 
 ```
 - Header
@@ -394,59 +409,9 @@ Authorization : Bearer <token Admin>
 - sukses
     ```
         {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-
-- badrequest
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-- not found
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-
-### Bid Lelang
-- Endpoint
-```
-{
-POST | "http://localhost:8080/secured/auction/bid-lelang"
-}
-```
-
-- Header
-```
-Authorization : Bearer <token Admin>
-```
-### Response
-- sukses
-    ```
-        {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-
-- badrequest
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
-        }
-    ```
-- not found
-    ``` 
-        {
-            "message" : "1",
-            "data:"null",
+            "code": "0500",
+            "message": "Auction Approved successfully",
+            "data": 12
         }
     ```
 

@@ -15,6 +15,7 @@ import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
 import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.response.UserDto;
+import jawa.sinaukoding.sk.model.response.ResponseUserDto;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import jawa.sinaukoding.sk.util.HexUtils;
 import jawa.sinaukoding.sk.util.JwtUtils;
@@ -48,8 +49,19 @@ public final class UserService extends AbstractService {
                 return Response.badRequest();
             }
             final List<UserDto> users = userRepository.listUsers(page, size) //
-                    .stream().map(user -> new UserDto(user.name(), user.role())).toList();
-            return Response.create("09", "00", "Sukses", users);
+                    .stream().map(user -> new UserDto(user.id(),user.name(),user.role())).toList();
+
+            final Long jumlahData = userRepository.listCountData();
+
+            Long totalPage = Long.valueOf(jumlahData/size);
+
+            if(totalPage<1){
+                totalPage += 1;
+            }
+
+            ResponseUserDto userDtoResponse = new ResponseUserDto(jumlahData, totalPage, Long.valueOf(page), Long.valueOf(size), users);
+
+            return Response.create("09", "00", "Sukses", userDtoResponse);
         });
     }
 
@@ -157,11 +169,11 @@ public final class UserService extends AbstractService {
             }
     
             User user = userOpt.get();
-    
-            if (user.deletedAt() != null || user.deletedBy() != null) {
+            
+            if (user.deletedAt() != null || user.deletedBy() != 0) {
                 return Response.create("07", "06", "Account has been deleted", null);
             }
-
+    
             if (!passwordEncoder.matches(req.oldPassword(), user.password())) {
                 System.out.println(passwordEncoder.matches(req.oldPassword(), user.password()));
 
@@ -173,6 +185,7 @@ public final class UserService extends AbstractService {
             if (passwordEncoder.matches(req.newPassword(), user.password())) {
                 return Response.create("07", "04", "New password cannot be the same as the old password", null);
             }
+
     
             final String encode = passwordEncoder.encode(req.newPassword());
             final long saved = userRepository.updatePassword(userId, encode);
