@@ -15,11 +15,11 @@ import jawa.sinaukoding.sk.model.request.UpdateProfileReq;
 import jawa.sinaukoding.sk.model.request.deleteReq;
 import jawa.sinaukoding.sk.model.Response;
 import jawa.sinaukoding.sk.model.response.UserDto;
+import jawa.sinaukoding.sk.model.response.ResponseUserDto;
 import jawa.sinaukoding.sk.repository.UserRepository;
 import jawa.sinaukoding.sk.util.HexUtils;
 import jawa.sinaukoding.sk.util.JwtUtils;
 
-import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,8 +49,19 @@ public final class UserService extends AbstractService {
                 return Response.badRequest();
             }
             final List<UserDto> users = userRepository.listUsers(page, size) //
-                    .stream().map(user -> new UserDto(user.name(), user.role())).toList();
-            return Response.create("09", "00", "Sukses", users);
+                    .stream().map(user -> new UserDto(user.id(),user.name(),user.role())).toList();
+
+            final Long jumlahData = userRepository.listCountData();
+
+            Long totalPage = Long.valueOf(jumlahData/size);
+
+            if(totalPage<1){
+                totalPage += 1;
+            }
+
+            ResponseUserDto userDtoResponse = new ResponseUserDto(jumlahData, totalPage, Long.valueOf(page), Long.valueOf(size), users);
+
+            return Response.create("09", "00", "Sukses", userDtoResponse);
         });
     }
 
@@ -141,53 +152,52 @@ public final class UserService extends AbstractService {
         final String token = JwtUtils.hs256Tokenize(header, payload, jwtKey);
         return Response.create("08", "00", "Sukses", token);
     }
+    
 
-    public Response<Object> resetPassword(final Authentication authentication, final ResetPasswordReq req,  final Long id){
-        return precondition(authentication, User.Role.ADMIN,User.Role.BUYER, User.Role.SELLER ).orElseGet(()->{
+    public Response<Object> resetPassword(final Authentication authentication, final ResetPasswordReq req, final Long id) {
+        return precondition(authentication, User.Role.ADMIN, User.Role.BUYER, User.Role.SELLER).orElseGet(() -> {
 
-            if (req == null || req.newPassword() == null || req.oldPassword() == null){
+            if (req == null || req.newPassword() == null || req.oldPassword() == null) {
                 return Response.badRequest();
             }
+
             Long userId = authentication.id();
-
-            Optional<User> userOpt= userRepository.findById(authentication.id());
-            if (userOpt.isEmpty()){
-                return Response.create("07","01" , "user not found", null);
+          
+            Optional<User> userOpt = userRepository.findById(authentication.id());
+            if (userOpt.isEmpty()) {
+                return Response.create("07", "01", "user not found", null);
             }
-
+    
             User user = userOpt.get();
-
-            if (user.deletedAt() != null || user.deletedBy() != null) {
+            
+            if (user.deletedAt() != null || user.deletedBy() != 0) {
                 return Response.create("07", "06", "Account has been deleted", null);
             }
+    
+            if (!passwordEncoder.matches(req.oldPassword(), user.password())) {
+                System.out.println(passwordEncoder.matches(req.oldPassword(), user.password()));
 
-            if(!passwordEncoder.matches(req.oldPassword(), user.password())){
-                return Response.create("07","03","Old password is incorect" , null);
+                System.out.println("PASSWORDD" + user.password());
+                System.out.println(" OLD PASSWORDD" + req.oldPassword());
+                return Response.create("07", "03", "Old password is incorrect", null);
             }
-
-            if(passwordEncoder.matches(req.newPassword(), user.password())){
+    
+            if (passwordEncoder.matches(req.newPassword(), user.password())) {
                 return Response.create("07", "04", "New password cannot be the same as the old password", null);
             }
 
+    
             final String encode = passwordEncoder.encode(req.newPassword());
-
             final long saved = userRepository.updatePassword(userId, encode);
             if (0L == saved) {
-                return Response.create("07", "02", "Gagal mereset password", null);
+                System.out.println("Failed to reset password");
+                return Response.create("07", "02", "Failed to reset password", null);
             }
-
-            Optional<User> userCheck = userRepository.findById(userId);
-            if (userCheck.isEmpty() || userCheck.get().deletedAt() != null || userCheck.get().deletedBy() != null) {
-                return Response.create("07", "07", "Account no longer exists", null);
-            }
-            UserDto userDto = new UserDto(user.name(), user.role());
-            return Response.create("07", "00", "Sukses", userDto );
- 
+    
+            return Response.create("07", "00", "Success", null);
         });
-
-        
     }
-
+    
     public Response<Object> updateProfile(final Authentication auth,final UpdateProfileReq req,long id){
         return precondition(auth, User.Role.ADMIN,User.Role.BUYER,User.Role.SELLER).orElseGet(() -> {
             if(id == 0L){
@@ -236,6 +246,7 @@ public final class UserService extends AbstractService {
         });
 
     }
+    
     public Response<Object> deletedResponse(Authentication authentication,final deleteReq req, Long idUser) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
             final Optional<User> userOpt = userRepository.findById(req.id());
