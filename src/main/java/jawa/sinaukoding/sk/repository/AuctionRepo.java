@@ -188,7 +188,7 @@ public class AuctionRepo {
     public List<Auction> listAuction(int page,int size,String stts){
         try{
             final String sql = "SELECT id, name, description, offer, highest_bid, highest_bidder_id, hignest_bidder_name, status, started_at, ended_at " +
-            "FROM %s WHERE status = ? LIMIT ? OFFSET ?".formatted(Auction.TABLE_NAME); 
+            "FROM %s WHERE status = ? AND deleted_at IS NULL LIMIT ? OFFSET ?".formatted(Auction.TABLE_NAME); 
             final List<Auction> auctions = jdbcTemplate.query(sql,new RowMapper<Auction>() {
                 @Override
                 public Auction mapRow(ResultSet rs, int rowNum) throws SQLException {
