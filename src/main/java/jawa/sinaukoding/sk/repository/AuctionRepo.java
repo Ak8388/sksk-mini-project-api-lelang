@@ -5,14 +5,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import jawa.sinaukoding.sk.entity.Auction;
 import jawa.sinaukoding.sk.entity.AuctionBid;
@@ -60,7 +58,6 @@ public class AuctionRepo {
                 ps.setString(1, Auction.Status.REJECTED.toString());
                 ps.setObject(2,OffsetDateTime.now(ZoneOffset.UTC));
                 ps.setLong(3,Id);
-                System.out.println("CEKKKKKKKKKKK"+ps);
                 return ps;
             }) > 0){
                 return Id;

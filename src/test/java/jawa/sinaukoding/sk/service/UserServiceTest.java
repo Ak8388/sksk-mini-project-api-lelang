@@ -360,7 +360,7 @@ class UserServiceTest {
 
     @Test
     void resetPassword_WrongOldPassword() {
-        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.BUYER, null, null, null, OffsetDateTime.now(), null, null);
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.BUYER, null, null, 0L, OffsetDateTime.now(), null, null);
         Mockito.when(userRepository.findById(user.id())).thenReturn(Optional.of(user));
         Mockito.when(passwordEncoder.matches("oldPassword", user.password())).thenReturn(false);
 
@@ -377,7 +377,7 @@ class UserServiceTest {
 
     @Test
     void resetPassword_SameOldAndNewPassword() {
-        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.SELLER, null, null, null, OffsetDateTime.now(), null, null);
+        User user = new User(1L, "Krise", "krise@gmail.com", new BCryptPasswordEncoder().encode("oldPassword"), User.Role.SELLER, null, null, 0L, OffsetDateTime.now(), null, null);
         Mockito.when(userRepository.findById(user.id())).thenReturn(Optional.of(user));
         Mockito.when(passwordEncoder.matches("oldPassword", user.password())).thenReturn(true);
         Mockito.when(passwordEncoder.matches("newPassword", user.password())).thenReturn(true);
