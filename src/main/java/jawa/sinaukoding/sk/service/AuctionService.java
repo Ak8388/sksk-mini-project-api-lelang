@@ -280,7 +280,7 @@ public class AuctionService extends AbstractService {
         return Response.badRequest();
          
         });
-}
+    }
 
     private boolean ifPresent(Auction auction) {
         return auction.id() != null ||
