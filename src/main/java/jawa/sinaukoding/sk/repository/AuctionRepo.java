@@ -151,12 +151,14 @@ public class AuctionRepo {
     public Long updateHigestBidAndInsertBidTable(final Auction auction,final AuctionBid auctionBid){
         try{
             if(jdbcTemplate.update(con ->{
-                PreparedStatement ps = con.prepareStatement("Update "+Auction.TABLE_NAME+" Set highest_bid=?, highest_bidder_id=?, hignest_bidder_name=? Where id=?");
+                PreparedStatement ps = con.prepareStatement("Update "+Auction.TABLE_NAME+" Set highest_bid=?, highest_bidder_id=?, hignest_bidder_name=?, updated_by=?, updated_at=? Where id=?");
                 
                 ps.setObject(1, auction.highestBid());
                 ps.setLong(2, auction.highestBidderId());
                 ps.setString(3, auction.highestBidderName());
-                ps.setLong(4, auction.id());
+                ps.setLong(4, auction.highestBidderId());
+                ps.setObject(5, OffsetDateTime.now(ZoneOffset.UTC));
+                ps.setLong(6, auction.id());
 
                 return ps;
             }) > 0){  
