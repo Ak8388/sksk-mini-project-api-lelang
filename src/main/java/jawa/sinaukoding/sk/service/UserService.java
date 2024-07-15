@@ -169,11 +169,11 @@ public final class UserService extends AbstractService {
             }
     
             User user = userOpt.get();
-    
-            if (user.deletedAt() != null || user.deletedBy() != null) {
+            
+            if (user.deletedAt() != null || user.deletedBy() != 0) {
                 return Response.create("07", "06", "Account has been deleted", null);
             }
-
+    
             if (!passwordEncoder.matches(req.oldPassword(), user.password())) {
                 System.out.println(passwordEncoder.matches(req.oldPassword(), user.password()));
 
@@ -185,6 +185,7 @@ public final class UserService extends AbstractService {
             if (passwordEncoder.matches(req.newPassword(), user.password())) {
                 return Response.create("07", "04", "New password cannot be the same as the old password", null);
             }
+
     
             final String encode = passwordEncoder.encode(req.newPassword());
             final long saved = userRepository.updatePassword(userId, encode);

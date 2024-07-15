@@ -242,6 +242,7 @@ public class UserRepository {
             }
             
         } catch (Exception e) {
+            log.error("ERROR", e);
            throw new CustomeException1("failed to delete");
         }
        

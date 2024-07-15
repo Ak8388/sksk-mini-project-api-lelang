@@ -18,3 +18,5 @@ COPY ${JAR} app.jar
 EXPOSE 8081
 
 CMD java $ENV_JAVA_PROPS -jar app.jar $ENV_JAR_ARGS
+
+# docker build -t sksk-lelang:v1 --build-arg JAR="target/*.jar" --build-arg ARGS="" --build-arg JAVA_PROPS="" -f ./tools/Docker/Dockerfile .

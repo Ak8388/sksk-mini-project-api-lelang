@@ -60,6 +60,7 @@ public class AuctionRepo {
                 ps.setString(1, Auction.Status.REJECTED.toString());
                 ps.setObject(2,OffsetDateTime.now(ZoneOffset.UTC));
                 ps.setLong(3,Id);
+                System.out.println("CEKKKKKKKKKKK"+ps);
                 return ps;
             }) > 0){
                 return Id;

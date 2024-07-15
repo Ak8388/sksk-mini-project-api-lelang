@@ -43,6 +43,7 @@ public class AuctionService extends AbstractService {
     public Response<Object> rejectAuction(final Authentication authentication, Long id) {
         return precondition(authentication, User.Role.ADMIN).orElseGet(() -> {
             Optional<Auction> auctionOptional = auctionRepo.findById(id);
+            System.out.println("TERSERAHH");
             if (auctionOptional.isEmpty()) {
                 return Response.create("07", "04", "Auction not found", null);
             }
@@ -68,8 +69,8 @@ public class AuctionService extends AbstractService {
                         auction.updatedAt(),
                         auction.deletedAt()
                     );
-                    
-                    return Response.create("07", "00", "Auction rejected",null);
+                    Long x = auctionRepo.RejectedAuction(id);
+                    return Response.create("07", "00", "Auction rejected",x);
               } 
               return Response.create("07", "03", "auction is not invalid", null);
             }
@@ -77,6 +78,31 @@ public class AuctionService extends AbstractService {
         });
        
     }
+
+    private boolean isInvalid(Auction auction) {
+        return auction.id() == null ||
+               isNullOrEmpty(auction.code()) ||
+               isNullOrEmpty(auction.name()) ||
+               isNullOrEmpty(auction.description()) ||
+               auction.offer() == null ||
+               auction.highestBid() == null ||
+               auction.highestBidderId() == null ||
+               isNullOrEmpty(auction.highestBidderName()) ||
+               auction.status() == null ||
+               auction.startedAt() == null ||
+               auction.endedAt() == null ||
+               auction.createdBy() == null ||
+               auction.updatedBy() == null ||
+               auction.deletedBy() == null ||
+               auction.createdAt() == null ||
+               auction.updatedAt() == null ||
+               auction.deletedAt() == null;
+    }
+
+    private boolean isNullOrEmpty(String str) {
+        return str == null || str.trim().isEmpty();
+      }
+     
 
     public Response<Object> listAuction(final Authentication authentication,int page,int size,String stts){
         return precondition(authentication, User.Role.ADMIN).orElseGet(()->{
@@ -104,30 +130,7 @@ public class AuctionService extends AbstractService {
         });
     }
 
-    private boolean isInvalid(Auction auction) {
-        return auction.id() == null ||
-               isNullOrEmpty(auction.code()) ||
-               isNullOrEmpty(auction.name()) ||
-               isNullOrEmpty(auction.description()) ||
-               auction.offer() == null ||
-               auction.highestBid() == null ||
-               auction.highestBidderId() == null ||
-               isNullOrEmpty(auction.highestBidderName()) ||
-               auction.status() == null ||
-               auction.startedAt() == null ||
-               auction.endedAt() == null ||
-               auction.createdBy() == null ||
-               auction.updatedBy() == null ||
-               auction.deletedBy() == null ||
-               auction.createdAt() == null ||
-               auction.updatedAt() == null ||
-               auction.deletedAt() == null;
-    }
-
-    private boolean isNullOrEmpty(String str) {
-        return str == null || str.trim().isEmpty();
-      }
-      
+    
     @Transactional
     public Response<Object> updateHigestBidAndInsertBidTable(final Authentication authentication,final UpdateHightBidReq updateHightBidReq){
         return precondition(authentication, User.Role.BUYER).orElseGet(()->{
@@ -152,7 +155,7 @@ public class AuctionService extends AbstractService {
             }
 
             if(updateHightBidReq.highestBid().compareTo(aucGet.highestBid()) <= 0 ){
-                return Response.create("03","06","highest bid request must be her",null);            }
+                return Response.create("03","06","highest bid request must be higher",null);            }
 
             Optional<User> user = userRepository.findById(authentication.id());
 
@@ -167,7 +170,6 @@ public class AuctionService extends AbstractService {
             }
 
             Auction auction2 = new Auction(aucGet.id(), null, null, null, null, updateHightBidReq.highestBid(), useGet.id(), useGet.name(), null, null, null, null, null, null, null, null, null);
-
             AuctionBid auctionBid = new AuctionBid(null, aucGet.id(), updateHightBidReq.highestBid(), useGet.id(), OffsetDateTime.now(ZoneOffset.UTC));
 
             Long auctionRepository = auctionRepo.updateHigestBidAndInsertBidTable(auction2, auctionBid);
@@ -270,16 +272,15 @@ public class AuctionService extends AbstractService {
                         auction.deletedAt()
                     );
                     Long x = auctionRepo.ApproveAuction(id);
-                    return Response.create("01", "01", "Auction Approved successfully", x);
+                    return Response.create("05", "00", "Auction Approved successfully", x);
               } else {
-                return Response.create("01", "02", "cannot Approved", null);
+                return Response.create("05", "01", "cannot Approved", null);
             }
         }
         return Response.badRequest();
          
         });
-
-    }
+}
 
     private boolean ifPresent(Auction auction) {
         return auction.id() != null ||

@@ -69,7 +69,7 @@ public class AuctionTest {
 
     @MockBean
     private Authentication authentication;
-
+    
     @BeforeEach
     void findAdmin() {
         Mockito.when(userRepository.findById(ArgumentMatchers.eq(1L))).thenReturn(Optional.of(ADMIN));
