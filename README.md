@@ -66,7 +66,6 @@ GET |  "http://localhost:8081/secured/user/list?page=2&size=5"
 ```
 Authorization : Bearer <token User (ADMIN/SELLER/BUYER)>
 ```
-
 ### Response
 
 - sukses
@@ -158,6 +157,14 @@ Authorization : Bearer <token Admin User>
 ```
 ### Response
 - sukses
+``` 
+{
+    "email"    : "charlie@example.com",
+    "password" : "12345678",
+    "role"     : "BUYER"
+}
+```
+- wrong old password
 ``` 
 {
     "email"    : "charlie@example.com",
