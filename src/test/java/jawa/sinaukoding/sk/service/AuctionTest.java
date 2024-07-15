@@ -267,7 +267,7 @@ public class AuctionTest {
 
     @Test
     public void updateHigestBidAndInsertBidTableFailedTest(){
-        Mockito.when(auctionRepo.findById(ArgumentMatchers.any())).thenReturn(null);
+        Mockito.when(auctionRepo.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
         final UpdateHightBidReq req = new UpdateHightBidReq(1L,BigInteger.valueOf(100000000));
 
         final User admin = userRepository.findById(2L).orElseThrow();
@@ -415,7 +415,7 @@ public class AuctionTest {
         Mockito.when(auctionRepo.findById(ArgumentMatchers.any())).thenReturn(optAuc);
         final UpdateHightBidReq req = new UpdateHightBidReq(1L,BigInteger.valueOf(10000000));
 
-        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(null);
+        Mockito.when(userRepository.findById(ArgumentMatchers.any())).thenReturn(Optional.empty());
 
         final Authentication authentication = new Authentication(2L, User.Role.BUYER, true);
 

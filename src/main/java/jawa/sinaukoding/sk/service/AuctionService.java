@@ -133,7 +133,7 @@ public class AuctionService extends AbstractService {
         return precondition(authentication, User.Role.BUYER).orElseGet(()->{
             Optional<Auction> auction = auctionRepo.findById(updateHightBidReq.auctionID());
 
-            if(auction == null){
+            if(auction.isEmpty()){
                 return Response.create("02","06","auction is empty",null);
             }
             
@@ -156,10 +156,9 @@ public class AuctionService extends AbstractService {
 
             Optional<User> user = userRepository.findById(authentication.id());
 
-            if(user == null){
+            if(user.isEmpty()){
                 return Response.create("01","07","user is empty",null);
             }
-
             
             User useGet = user.get();
             
