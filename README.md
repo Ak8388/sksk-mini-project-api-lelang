@@ -14,18 +14,18 @@ Apache Maven 3.9.8
 
 ## Cara Menjalankan Program
 
-* Jalankan database migration tools
+* Jalankan database migration tools jika menggunakan linux atau mac
 ```bash
 ./mvnw clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf
 ```
-## Jika menggunakan windows 
+* Jika menggunakan windows jalanakan migration di bawah
 ``` 
 jalanakan perintah menggunakan gitbash comand atau cmd "mvn clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf"
 ```
 
 * Jalankan aplikasi
 ```bash
-./mvnw spring-boot:run 
+mvn spring-boot:run 
 ```
 ## Login
 
