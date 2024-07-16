@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 
 @Service
@@ -114,7 +115,7 @@ public class AuctionService extends AbstractService {
                 return Response.create("02", "07","status tidak boleh kosong", null);
             }
 
-            List<AuctionDto> auctions = auctionRepo.listAuction(page, size, stts) //
+            List<AuctionDto> auctions =  auctionRepo.listAuction(page, size, stts)
             .stream().map(auction -> new AuctionDto(auction.id(),auction.name(),auction.description(),auction.offer(),auction.highestBid(),auction.highestBidderId(),auction.highestBidderName(),auction.status(),auction.startedAt(),auction.endedAt())).toList();
 
             Long totalData = auctionRepo.countData(stts);
@@ -195,7 +196,9 @@ public class AuctionService extends AbstractService {
 
             OffsetDateTime startAt = OffsetDateTime.parse(req.startedAt());
             OffsetDateTime endAt = OffsetDateTime.parse(req.endedAt());
+
             BigInteger offerPrice = req.maximumPrice().subtract(req.minimumPrice()).divide(BigInteger.TWO);
+
             Auction auction = new Auction(
                 null, 
                 UUID.randomUUID().toString().substring(0,8).toUpperCase(),
@@ -226,7 +229,7 @@ public class AuctionService extends AbstractService {
             if(auction.offer().compareTo(BigInteger.valueOf(1000)) <= 0){
                 return Response.badRequest();
             }
-
+            
             if(auction.name().length() < 5){
                 return Response.create("40","00","masukan nama lelang dengan benar",null);
             }

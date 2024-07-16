@@ -27,8 +27,8 @@ public class AuctionController {
     // seller bisa createAuction
     @PostMapping("create-auction")
     public Response<Object> createAuction(@RequestBody SellerCreateAuctionReq req) {
-            Authentication auth = SecurityContextHolder.getAuthentication();
-            return auctionService.auctionCreate(auth, req);        
+        Authentication auth = SecurityContextHolder.getAuthentication();
+        return auctionService.auctionCreate(auth, req);        
     }
  
     // admin, bisa approve
