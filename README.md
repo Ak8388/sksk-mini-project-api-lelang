@@ -16,7 +16,7 @@ Apache Maven 3.9.8
 
 * Jalankan database migration tools jika menggunakan linux atau mac
 ```bash
-./mvnw clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf
+mvn clean flyway:migrate -Dflyway.configFiles=tools/db/migrations.conf
 ```
 * Jika menggunakan windows jalanakan migration di bawah
 ``` 
@@ -27,6 +27,10 @@ jalanakan perintah menggunakan gitbash comand atau cmd "mvn clean flyway:migrate
 ```bash
 mvn spring-boot:run 
 ```
+
+## Pengujian API dengan Postman
+- Cara install : https://www.postman.com/downloads/
+
 ## Login
 
 ### Endpoint
